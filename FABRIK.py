@@ -140,65 +140,13 @@ class FABRIK:
 
         # change the coordinate to cross section of cone and calculating the (i-1)th position in it
 
-        si=self.orientation
 
         L_otarget = utils.distance(o,p_target)
         unitVoTarget = CG3dVector((p_target[0]-o[0])/L_otarget,(p_target[1]-o[1])/L_otarget,(p_target[2]-o[2])/L_otarget)
         
+        si=self.orientation
         y_t=L_otarget*math.cos(si)
         x_t=L_otarget*math.sin(si)
-
-
-        # The cone cross section is a plane Ax+By+Cz+D=0
-        # any point in this plane (x1,y1,z1) if lies on the x axis of the 2d coordinate in plane should:
-        # be on plane
-        # vector from o to this point dot product unitvec has some known value
-        # this point distance to o is y_t
-        Lopi=utils.distance(o,p_i)
-        
-        unitPlane=CG3dVector((p_i[0]-o[0])/Lopi,(p_i[1]-o[1])/Lopi,(p_i[2]-o[2])/Lopi)
-        
-        
-        A=unitPlane[0]
-        B=unitPlane[1]
-        C=unitPlane[2]
-        D=-(A*p_target[0]+B*p_target[1]+C*p_target[2])
-
-
-        F1 = unitVoTarget[0]-unitVoTarget[2]*A/C
-        F2 = unitVoTarget[1]-unitVoTarget[2]*B/C
-    
-
-
-        F3 =  -A/C+(B/C)*(F1/F2)
-        M1 = -unitVoTarget[0]*o[0]-unitVoTarget[1]*o[1]-unitVoTarget[2]*o[2]-unitVoTarget[2]*D/C-y_t*math.cos(si)
-        M2 = (B/C)*(M1/F2)-D/C
-        a2=1+(F1/F2)**2+F3**2
-        a1=-2*o[0]+2*(F1/F2)*(o[1]+M1/F2)+2*F3*(M2-o[2])
-        a0=o[0]**2+(o[1]+M1/F2)**2+(M2-o[2])**2-y_t**2
-        
-        # The first point on y axis
-        x1=self.newtonRaphsonPointOnCrossSectionCone(o[0],a2,a1,a0)
-        y1=-(M1/F2)-(F1/F2)*x1
-        z1=F3*x1+M2
-
-        point1=CG3dPoint(x1,y1,z1)
-
-        M1 = -unitVoTarget[0]*o[0]-unitVoTarget[1]*o[1]-unitVoTarget[2]*o[2]-unitVoTarget[2]*D/C-x_t*math.sin(si)
-        M2 = (B/C)*(M1/F2)-D/C
-
-        a1=-2*o[0]+2*(F1/F2)*(o[1]+M1/F2)+2*F3*(M2-o[2])
-        a0=o[0]**2+(o[1]+M1/F2)**2+(M2-o[2])**2-x_t**2
-
-
-    
-        # The second point on x axis 
-        x2=self.newtonRaphsonPointOnCrossSectionCone(o[0],a2,a1,a0)
-        y2=-(M1/F2)-(F1/F2)*x2
-        z2=F3*x2+M2
-
-
-        point2=CG3dPoint(x2,y2,z2)
 
         
         # finding the sector of the target position
@@ -242,6 +190,11 @@ class FABRIK:
             yNP=math.sqrt(abs(q3**2-q3**2/q2**2*xNP**2))
 
 
+        #finding 2 point on 2d cross section plane
+        point1=pointsOn2DConeCrosssection(self,o,p_i,p_target,unitVoTarget,x_t,y_t,1)
+        point2=pointsOn2DConeCrosssection(self,o,p_i,p_target,unitVoTarget,x_t,y_t,2)
+
+
         # finding two vector in 2D cross section plane:
         L_op1=utils.distance(o,point1)
         L_op2=utils.distance(o,point2)
@@ -254,6 +207,7 @@ class FABRIK:
         x_phat= o[0]+xNP*v1[0]+yNP*v2[0]
         y_phat= o[1]+xNP*v1[1]+yNP*v2[1]
         z_phat= o[2]+xNP*v1[2]+yNP*v2[2]
+
         # unit vector from p(i)to Phat(i-1)
         p_hat=CG3dPoint(x_phat,y_phat,z_phat)
         L_PPhat=utils.distance(p_i,p_hat)
@@ -264,6 +218,53 @@ class FABRIK:
                                +self.lengths[i-1]*u_PPhat[2])
         return pprime
 
+    def pointsOn2DConeCrosssection(self,o,p_i,p_target,unitVoTarget,x_t,y_t,i):
+        
+        # The cone cross section is a plane Ax+By+Cz+D=0
+        # any point in this plane (x1,y1,z1) if lies on the x axis of the 2d coordinate in plane should:
+        # be on plane
+        # vector from o to this point dot product unitvec has some known value
+        # this point distance to o is y_t
+        si=self.orientation
+        Lopi=utils.distance(o,p_i)
+        
+        unitPlane=CG3dVector((p_i[0]-o[0])/Lopi,(p_i[1]-o[1])/Lopi,(p_i[2]-o[2])/Lopi)
+        
+        
+        A=unitPlane[0]
+        B=unitPlane[1]
+        C=unitPlane[2]
+        D=-(A*p_target[0]+B*p_target[1]+C*p_target[2])
+
+
+        F1 = unitVoTarget[0]-unitVoTarget[2]*A/C
+        F2 = unitVoTarget[1]-unitVoTarget[2]*B/C
+        F3 =  -A/C+(B/C)*(F1/F2)
+        a2=1+(F1/F2)**2+F3**2
+        
+        # The first point on y axis
+        x1=self.newtonRaphsonPointOnCrossSectionCone(o[0],a2,a1,a0)
+        y1=-(M1/F2)-(F1/F2)*x1
+        z1=F3*x1+M2
+
+        if i==1:
+            M1 = -unitVoTarget[0]*o[0]-unitVoTarget[1]*o[1]-unitVoTarget[2]*o[2]-unitVoTarget[2]*D/C-y_t*math.cos(si)
+            M2 = (B/C)*(M1/F2)-D/C
+            a1=-2*o[0]+2*(F1/F2)*(o[1]+M1/F2)+2*F3*(M2-o[2])
+            a0=o[0]**2+(o[1]+M1/F2)**2+(M2-o[2])**2-y_t**2
+            point1=CG3dPoint(x1,y1,z1)
+            return point1
+        else:
+            M1 = -unitVoTarget[0]*o[0]-unitVoTarget[1]*o[1]-unitVoTarget[2]*o[2]-unitVoTarget[2]*D/C-x_t*math.sin(si)
+            M2 = (B/C)*(M1/F2)-D/C
+            a1=-2*o[0]+2*(F1/F2)*(o[1]+M1/F2)+2*F3*(M2-o[2])
+            a0=o[0]**2+(o[1]+M1/F2)**2+(M2-o[2])**2-x_t**2
+            # The second point on x axis 
+            x2=self.newtonRaphsonPointOnCrossSectionCone(o[0],a2,a1,a0)
+            y2=-(M1/F2)-(F1/F2)*x2
+            z2=F3*x2+M2
+            point2=CG3dPoint(x2,y2,z2)
+            return point2
     def newtonRaphsonPointOnCrossSectionCone(self,x, a2,a1,a0):
         h = self.funcPoint(x,a2,a1,a0) / self.derivFuncPoint(x,a2,a1) 
         while abs(h) >= 0.0001: 
@@ -312,5 +313,5 @@ class FABRIK:
         return x
             
             
-manipulator = FABRIK(np.loadtxt("joints.txt"),[10.0,5.0,1.0],np.loadtxt("theta.txt"),0.5)
+manipulator = FABRIK(np.loadtxt("joints.txt"),[4.0,5.0,1.0],np.loadtxt("theta.txt"),0.5)
 manipulator.solve()
