@@ -28,10 +28,8 @@ class ClosedLoop:
         self.totallength=sum(lengths)
     def forward(self):
         # set end effector as target
-        print("forward")
         self.joints[self.n-1]=self.target;
-        for i in range(self.n-2,1,-1):
-            print("the ",i," th joint in forward")
+        for i in range(self.n-2,-1,-1):
             r = math.sqrt((self.joints[i][0]-self.joints[i+1][0])**2+
                           (self.joints[i][1]-self.joints[i+1][1])**2+
                           (self.joints[i][2]-self.joints[i+1][2])**2)
@@ -40,29 +38,24 @@ class ClosedLoop:
             pos=(1-landa)*self.joints[i+1]+landa*self.joints[i]
             self.joints[i]=pos
             constraintReturn=self.constraint(i,self.Theta[i])
-            print(constraintReturn)
             if constraintReturn[0] == 0:
                 self.joints[i]=pos
             else:
                 for j in range(3):
                     self.joints[i][j]=constraintReturn[j]
     def backward(self):
-        print("backward")
         # set root as initial position
         self.joints[0]=self.target;
-        for i in range(0,self.n-2):
-            print("the ",i," th joint in backward")
-            r = math.sqrt((self.joints[i][0]-self.joints[i+1][0])**2+
-                               (self.joints[i][1]-self.joints[i+1][1])**2+
-                          (self.joints[i][2]-self.joints[i+1][2])**2)
-            landa = self.lengths[i]/r
+        for i in range(1,self.n-2):
+            r = math.sqrt((self.joints[i][0]-self.joints[i-1][0])**2+
+                               (self.joints[i][1]-self.joints[i-1][1])**2+
+                          (self.joints[i][2]-self.joints[i-1][2])**2)
+            landa = self.lengths[i-1]/r
             # find new joint position
-            pos=(1-landa)*self.joints[i]+landa*self.joints[i+1]
-            self.joints[i+1]=pos;
+            pos=(1-landa)*self.joints[i-1]+landa*self.joints[i]
+            self.joints[i]=pos;
     
     def solve(self):
-        print("lengthsBefore:",self.lengths)
-
         for q in range (0,4):
             for p in range(0,4):
                 if self.Theta[q][p]>=2:
@@ -102,7 +95,6 @@ class ClosedLoop:
             for i in range(1,len(self.joints)):
                 lengthN = math.sqrt((self.joints[i][0]-self.joints[i-1][0])**2+(self.joints[i][1]-self.joints[i-1][1])**2+(self.joints[i][2]-self.joints[i-1][1])**2)
                 lengthsN.append(lengthN)
-            print("lengths after: ",lengthsN)
             draw(self.joints,self.target,np.loadtxt("jointsClosed.txt"))
     def constraint(self,i,Theta):
             p_i = CG3dPoint(self.joints[i][0],self.joints[i][1],self.joints[i][2])
