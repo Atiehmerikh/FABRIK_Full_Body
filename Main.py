@@ -5,13 +5,13 @@ import numpy as np
 
 ## in this part you can build an arm with specifying constraint types and joint position and target
 ##
-##constraintType=["ball","hinge","ball"]
-##targetPosition=[4.0,3.0,1.0]
-##originPosition=[0.0,0.0,0.0]
-##orientationAngleLimit=0.5
-##
-##manipulator = FABRIKARM(np.loadtxt("joints.txt"),targetPosition,originPosition,np.loadtxt("theta.txt"),orientationAngleLimit,constraintType)
-##manipulator.solve()
+constraintType=["ball","hinge","ball"]
+targetPosition=[4.0,3.0,1.0]
+originPosition=[0.0,0.0,0.0]
+orientationAngleLimit=0.5
+
+manipulator = FABRIKARM(np.loadtxt("joints.txt"),targetPosition,originPosition,np.loadtxt("theta.txt"),orientationAngleLimit,constraintType)
+manipulator.solve()
 
 
 ## in this part you can build an UpperBody with specifying constraint types and joint position and target
