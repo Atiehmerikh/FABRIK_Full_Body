@@ -6,103 +6,251 @@ from pycg3d.cg3d_point import CG3dPoint
 from pycg3d.cg3d_vector import CG3dVector
 from pycg3d import utils
 from pycg3d.cg3d_plane import CG3dPlanePN
-from draw import draw 
+from drawArm import draw 
 
 
 class FABRIKARM:
-    def __init__(self,joints,target,origin,Theta,orientation,constraintType):
+    
+    def __init__(self,joints,target,origin,orientation,length):
         self.n=len(joints)
         self.joints = joints
-        self.Theta = Theta
         self.orientation = orientation
-        self.constraintType = constraintType
+        #self.constraintType = constraintType
+        self.rightArmIndex = [0,1,2,3,4]
+        self.leftArmIndex = [0,5,6,7,8]
+        self.upperChain = [0,1,5,0]
+        self.lowerChain = [0,9,10,0]
+        self.rightLeg = [13,12,11,9]
+        self.leftLeg = [16,15,14,10]
+        
+        
         lengths=[]
-        for i in range(1,len(joints)):
-            length = math.sqrt((joints[i][0]-joints[i-1][0])**2+
-                               (joints[i][1]-joints[i-1][1])**2+
-                                (joints[i][2]-joints[i-1][1])**2)
-            lengths.append(length)
+        # Arm Lenght:
+        for i in range(0,len(self.rightArmIndex)-1):
+            lengthiR = math.sqrt((length[self.rightArmIndex[i]][0]-length[self.rightArmIndex[i+1]][0])**2+
+                               (length[self.rightArmIndex[i]][1]-length[self.rightArmIndex[i+1]][1])**2+
+                                (length[self.rightArmIndex[i]][2]-length[self.rightArmIndex[i+1]][2])**2)
+            lengthiL = math.sqrt((length[self.leftArmIndex[i]][0]-length[self.leftArmIndex[i+1]][0])**2+
+                               (length[self.leftArmIndex[i]][1]-length[self.leftArmIndex[i+1]][1])**2+
+                                (length[self.leftArmIndex[i]][2]-length[self.leftArmIndex[i+1]][2])**2)
+            
+            lengths.insert(self.rightArmIndex[i],lengthiR)
+            lengths.insert(self.leftArmIndex[i],lengthiL)
+        
+        #Upper and Lower chain lengths:
+        for i in range(0,len(self.upperChain)-1):
+            lengthiU = math.sqrt((length[self.upperChain[i]][0]-length[self.upperChain[i+1]][0])**2+
+                               (length[self.upperChain[i]][1]-length[self.upperChain[i+1]][1])**2+
+                                (length[self.upperChain[i]][2]-length[self.upperChain[i+1]][2])**2)
+            lengthiLo = math.sqrt((length[self.lowerChain[i]][0]-length[self.lowerChain[i+1]][0])**2+
+                               (length[self.lowerChain[i]][1]-length[self.lowerChain[i+1]][1])**2+
+                                (length[self.lowerChain[i]][2]-length[self.lowerChain[i+1]][2])**2)
+            lengths.insert(self.upperChain[i],lengthiU)
+            lengths.insert(self.lowerChain[i],lengthiLo)
+        # legs Lenght:
+        for i in range(0,len(self.rightLeg)-1):
+            lengthiR = math.sqrt((length[self.rightLeg[i]][0]-length[self.rightLeg[i+1]][0])**2+
+                               (length[self.rightLeg[i]][1]-length[self.rightLeg[i+1]][1])**2+
+                                (length[self.rightLeg[i]][2]-length[self.rightLeg[i+1]][2])**2)
+            lengthiL = math.sqrt((length[self.leftLeg[i]][0]-length[self.leftLeg[i+1]][0])**2+
+                               (length[self.leftLeg[i]][1]-length[self.leftLeg[i+1]][1])**2+
+                                (length[self.leftLeg[i]][2]-length[self.leftLeg[i+1]][2])**2)
+            
+            lengths.insert(self.rightLeg[i],lengthiR)
+            lengths.insert(self.leftLeg[i],lengthiL) 
+        
+        self.lengths=lengths
         self.tolerance=0.01
         self.target=target
-        self.lengths=lengths
-        self.origin=origin
-        self.totallength=sum(lengths)
-    def forward(self):
+
+    def forwardARM(self):
         # set end effector as target
-        self.joints[self.n-1]=self.target;
-        for i in range(self.n-2,-1,-1):
-            r = math.sqrt((self.joints[i][0]-self.joints[i+1][0])**2+
-                          (self.joints[i][1]-self.joints[i+1][1])**2+
-                          (self.joints[i][2]-self.joints[i+1][2])**2)
-            landa = self.lengths[i]/r
+        n = len(self.rightArmIndex)
+        self.joints[self.rightArmIndex[n-1]]=self.target;
+        for i in range(n-2,-1,-1):
+            r = math.sqrt((self.joints[self.rightArmIndex[i]][0]-self.joints[self.rightArmIndex[i+1]][0])**2+
+                          (self.joints[self.rightArmIndex[i]][1]-self.joints[self.rightArmIndex[i+1]][1])**2+
+                          (self.joints[self.rightArmIndex[i]][2]-self.joints[self.rightArmIndex[i+1]][2])**2)
+            landa = self.lengths[self.rightArmIndex[i]]/r
             # find new joint position
-            pos=(1-landa)*self.joints[i+1]+landa*self.joints[i]
-            constraintReturn=self.constraint(i,self.Theta[i],self.constraintType[i])
-            print(constraintReturn)
-            if constraintReturn[0] == 0:
-                self.joints[i]=pos
-            else:
-                for j in range(3):
-                    self.joints[i][j]=constraintReturn[j]
-        print("joints position After forward: ",self.joints)
+            pos=(1-landa)*self.joints[self.rightArmIndex[i+1]]+landa*self.joints[self.rightArmIndex[i]]
+            self.joints[self.rightArmIndex[i]]=pos
+            
+           # constraintReturn=self.constraint(i,self.Theta[self.rightArmIndex[i]],self.constraintType[self.rightArmIndex[i]])
+            #if constraintReturn[0] == 0:
+             #   self.joints[self.rightArmIndex[i]]=pos
+            #else:
+             #   for j in range(3):
+              #      self.joints[self.rightArmIndex[i]][j]=constraintReturn[j]
+    def updateUpperChain(self):
+        r = math.sqrt((self.joints[self.upperChain[2]][0]-self.joints[self.upperChain[1]][0])**2+
+                      (self.joints[self.upperChain[2]][1]-self.joints[self.upperChain[1]][1])**2+
+                      (self.joints[self.upperChain[2]][2]-self.joints[self.upperChain[1]][2])**2)
+        landa = self.lengths[self.upperChain[1]]/r
+            # find new joint position
+        pos=(1-landa)*self.joints[self.upperChain[2]]+landa*self.joints[self.upperChain[1]]
+        self.joints[self.upperChain[2]]=pos
+        #constraintReturn=self.constraint(i,self.Theta[self.upperChain[1]],self.constraintType[self.upperChain[1]])
+        #if constraintReturn[0] == 0:
+         #   self.joints[self.upperChain[2]]=pos
+        #else:
+         #   for j in range(3):
+          #      self.joints[self.upperChain[2]][j]=constraintReturn[j]
 
-    def backward(self):
-        print("backward")
+    def updateLowerChainF(self):
+        r = math.sqrt((self.joints[self.lowerChain[1]][0]-self.joints[self.lowerChain[0]][0])**2+
+                          (self.joints[self.lowerChain[1]][1]-self.joints[self.lowerChain[0]][1])**2+
+                          (self.joints[self.lowerChain[1]][2]-self.joints[self.lowerChain[0]][2])**2)
+        landa = self.lengths[self.lowerChain[0]]/r
+            # find new joint position
+        pos=(1-landa)*self.joints[self.lowerChain[1]]+landa*self.joints[self.lowerChain[0]]
+        self.joints[self.lowerChain[1]]=pos
+        #constraintReturn=self.constraint(i,self.Theta[self.lowerChain[0]],self.constraintType[self.lowerChain[0]])
+        #if constraintReturn[0] == 0:
+         #   self.joints[self.lowerChain[1]]=pos
+        #else:
+         #   for j in range(3):
+          #      self.joints[self.lowerChain[1]][j]=constraintReturn[j]
+        r = math.sqrt((self.joints[self.lowerChain[2]][0]-self.joints[self.lowerChain[0]][0])**2+
+                      (self.joints[self.lowerChain[2]][1]-self.joints[self.lowerChain[0]][1])**2+
+                      (self.joints[self.lowerChain[2]][2]-self.joints[self.lowerChain[0]][2])**2)
+        landa = self.lengths[self.lowerChain[2]]/r
+            # find new joint position
+        pos=(1-landa)*self.joints[self.lowerChain[2]]+landa*self.joints[self.lowerChain[0]]
+        self.joints[self.lowerChain[2]]=pos
+               # constraintReturn = self.constraint(i,self.Theta[self.lowerChain[0]],self.constraintType[self.lowerChain[0]])
+                #if constraintReturn[0] == 0:
+                 #   self.joints[self.lowerChain[2]]=pos
+                #else:
+               #     for j in range(3):
+                #        self.joints[self.lowerChain[2]][j]=constraintReturn[j]
+    def updateLowerChainB(self):
+        r = math.sqrt((self.joints[self.lowerChain[1]][0]-self.joints[self.lowerChain[0]][0])**2+
+                          (self.joints[self.lowerChain[1]][1]-self.joints[self.lowerChain[0]][1])**2+
+                          (self.joints[self.lowerChain[1]][2]-self.joints[self.lowerChain[0]][2])**2)
+        landa = self.lengths[self.lowerChain[0]]/r
+            # find new joint position
+        pos=(1-landa)*self.joints[self.lowerChain[1]]+landa*self.joints[self.lowerChain[0]]
+        self.joints[self.lowerChain[0]]=pos
+    
+    def forwardLeg(self):
+         # set end effector of leg as target
+        n = len(self.rightLeg)
+        for i in range(n-2,-1,-1):
+            # Right Leg
+            r = math.sqrt((self.joints[self.rightLeg[i]][0]-self.joints[self.rightLeg[i+1]][0])**2+
+                          (self.joints[self.rightLeg[i]][1]-self.joints[self.rightLeg[i+1]][1])**2+
+                          (self.joints[self.rightLeg[i]][2]-self.joints[self.rightLeg[i+1]][2])**2)
+            landa = self.lengths[self.rightLeg[i]]/r
+            # find new joint position
+            pos=(1-landa)*self.joints[self.rightLeg[i+1]]+landa*self.joints[self.rightLeg[i]]
+            self.joints[self.rightLeg[i]]=pos
+            #constraintReturn=self.constraint(i,self.Theta[self.rightLeg[i]],self.constraintType[self.rightLeg[i]])
+            #if constraintReturn[0] == 0:
+             #   self.joints[self.rightLeg[i]]=pos
+            #else:
+             #   for j in range(3):
+              #      self.joints[self.rightLeg[i]][j]=constraintReturn[j]
+    
+            #Left leg
+            r = math.sqrt((self.joints[self.leftLeg[i]][0]-self.joints[self.leftLeg[i+1]][0])**2+
+                          (self.joints[self.leftLeg[i]][1]-self.joints[self.leftLeg[i+1]][1])**2+
+                          (self.joints[self.leftLeg[i]][2]-self.joints[self.leftLeg[i+1]][2])**2)
+            landa = self.lengths[self.leftLeg[i]]/r
+            # find new joint position
+            pos=(1-landa)*self.joints[self.leftLeg[i+1]]+landa*self.joints[self.leftLeg[i]]
+            self.joints[self.leftLeg[i]]=pos
+            #constraintReturn=self.constraint(i,self.Theta[self.leftLeg[i]],self.constraintType[self.leftLeg[i]])
+            #if constraintReturn[0] == 0:
+             #   self.joints[self.leftLeg[i]]=pos
+            #else:
+             #   for j in range(3):
+              #      self.joints[self.leftLeg[i]][j]=constraintReturn[j]
+    
+    
+    def backwardARM(self):
         # set root as initial position
-        self.joints[0]=self.origin;
-        for i in range(1,self.n):
-            print("the ",i," th joint in backward")
+        n= len(self.rightArmIndex)
+        for i in range(1,n):
 
-            r = math.sqrt((self.joints[i][0]-self.joints[i-1][0])**2+
-                               (self.joints[i][1]-self.joints[i-1][1])**2+
-                          (self.joints[i][2]-self.joints[i-1][2])**2)
-            landa = self.lengths[i-1]/r
+            r = math.sqrt((self.joints[self.rightArmIndex[i]][0]-self.joints[self.rightArmIndex[i-1]][0])**2+
+                               (self.joints[self.rightArmIndex[i]][1]-self.joints[self.rightArmIndex[i-1]][1])**2+
+                          (self.joints[self.rightArmIndex[i]][2]-self.joints[self.rightArmIndex[i-1]][2])**2)
+            landa = self.lengths[self.rightArmIndex[i-1]]/r
             # find new joint position
-            pos=(1-landa)*self.joints[i-1]+landa*self.joints[i]
-            self.joints[i]=pos;
-        print("joints position After backward: ",self.joints)       
+            pos=(1-landa)*self.joints[self.rightArmIndex[i-1]]+landa*self.joints[self.rightArmIndex[i]]
+            self.joints[self.rightArmIndex[i]]=pos;
+    def backwardLeg(self):
+        # set root as initial position
+        self.joints[self.rightLeg[0]]=self.lengths[self.rightLeg[0]]
+        self.joints[self.leftLeg[0]]=self.lengths[self.leftLeg[0]]
+        n = len(self.rightLeg)
+        for i in range(1,n):
+            #for Right leg
+            r = math.sqrt((self.joints[self.rightLeg[i]][0]-self.joints[self.rightLeg[i-1]][0])**2+
+                          (self.joints[self.rightLeg[i]][1]-self.joints[self.rightLeg[i-1]][1])**2+
+                          (self.joints[self.rightLeg[i]][2]-self.joints[self.rightLeg[i-1]][2])**2)
+            landa = self.lengths[self.rightLeg[i-1]]/r
+            # find new joint position
+            pos=(1-landa)*self.joints[self.rightLeg[i-1]]+landa*self.joints[self.rightLeg[i]]
+            self.joints[self.rightLeg[i]]=pos;
+         #for left leg
+            r = math.sqrt((self.joints[self.leftLeg[i]][0]-self.joints[self.leftLeg[i-1]][0])**2+
+                          (self.joints[self.leftLeg[i]][1]-self.joints[self.leftLeg[i-1]][1])**2+
+                          (self.joints[self.leftLeg[i]][2]-self.joints[self.leftLeg[i-1]][2])**2)
+            landa = self.lengths[self.leftLeg[i-1]]/r
+            # find new joint position
+            pos=(1-landa)*self.joints[self.leftLeg[i-1]]+landa*self.joints[self.leftLeg[i]]
+            self.joints[self.leftLeg[i]]=pos;
     def solve(self):
-        for q in range (0,4):
-            for p in range(0,4):
-                if self.Theta[q][p]>=2:
-                    print("the theta is out of range!!!")
-                    return
-        distance = math.sqrt((self.joints[0][0]-self.target[0])**2+
-                             (self.joints[0][1]-self.target[1])**2+
-                             (self.joints[0][2]-self.target[2])**2)
-        if distance > self.totallength:
+        #for q in range (0,4):
+         #   for p in range(0,4):
+          #      if self.Theta[q][p]>=2:
+           #         print("the theta is out of range!!!")
+            #        return
+        #Should chek!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #distance = math.sqrt((self.joints[0][0]-self.target[0])**2+
+         #                    (self.joints[0][1]-self.target[1])**2+
+          #                   (self.joints[0][2]-self.target[2])**2)
+       # if distance > self.totallength:
         # target is out of reach
-            for i in range(1,self.n-1):
-                r=math.sqrt((self.joints[i][0]-self.target[0])**2+
-                             (self.joints[i][1]-self.target[1])**2+
-                            (self.joints[i][2]-self.target[2])**2)
-                landa=self.lengths[i-1]/r;
+          #for i in range(1,self.n-1):
+           #     r=math.sqrt((self.joints[i][0]-self.target[0])**2+
+            #                 (self.joints[i][1]-self.target[1])**2+
+             #               (self.joints[i][2]-self.target[2])**2)
+              #  landa=self.lengths[i-1]/r;
         # find new joint position
-                self.joints[i]= [a1 + a2 for a1, a2 in zip([(1-landa)*x for x in self.joints[i-1]], [landa*x for x in self.target])]
-                print("target is out of reach!!!!!!!")
+               # self.joints[i]= [a1 + a2 for a1, a2 in zip([(1-landa)*x for x in self.joints[i-1]], [landa*x for x in self.target])]
+                #print("target is out of reach!!!!!!!")
 
-        else:
+        #else:
         # target is in reach
             bcount=0;
-            dif=math.sqrt((self.joints[self.n-1][0]-self.target[0])**2+
-                             (self.joints[self.n-1][1]-self.target[1])**2+
-                          (self.joints[self.n-1][2]-self.target[2])**2)
+            n = len(self.rightArmIndex)
+            dif=math.sqrt((self.joints[n-1][0]-self.target[0])**2+
+                             (self.joints[n-1][1]-self.target[1])**2+
+                          (self.joints[n-1][2]-self.target[2])**2)
             
             while dif > self.tolerance:
-                self.forward()
-                self.backward()
-                dif = math.sqrt((self.joints[self.n-1][0]-self.target[0])**2+
-                             (self.joints[self.n-1][1]-self.target[1])**2+
-                                (self.joints[self.n-1][2]-self.target[2])**2)
+                self.forwardARM()
+                self.updateUpperChain()
+                self.updateLowerChainF()
+                self.forwardLeg()
+                
+                self.backwardLeg()
+                self.updateLowerChainB()
+                self.backwardARM()                                                       
+                self.updateUpperChain()
+                dif=math.sqrt((self.joints[n-1][0]-self.target[0])**2+
+                             (self.joints[n-1][1]-self.target[1])**2+
+                              (self.joints[n-1][2]-self.target[2])**2)
                 bcount=bcount+1
                 if bcount>10:
                     break
             print("new joints position: ",self.joints)
-            lengthsN=[]
-            for i in range(1,len(self.joints)):
-                lengthN = math.sqrt((self.joints[i][0]-self.joints[i-1][0])**2+(self.joints[i][1]-self.joints[i-1][1])**2+(self.joints[i][2]-self.joints[i-1][1])**2)
-                lengthsN.append(lengthN)
-            draw(self.joints,self.target,np.loadtxt("joints.txt"))
+            draw(self.joints,self.target,np.loadtxt("length.txt"),self.rightArmIndex,self.leftArmIndex,
+                self.upperChain,self.lowerChain,self.rightLeg,self.leftLeg)
+
     
     def constraint(self,i,Theta,constraintType):
             p_i = CG3dPoint(self.joints[i][0],self.joints[i][1],self.joints[i][2])
@@ -349,3 +497,4 @@ class FABRIKARM:
             h = self.funcNP(x,a,b,x_t,y_t) / self.derivFuncNP(x,a,b,x_t,y_t) 
             x = x - h 
         return x
+
