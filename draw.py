@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d, Axes3D
 
 def draw(joints,target,first_pos,rightArmIndex,leftArmIndex,upperChain,lowerChain,rightLeg,leftLeg):
-def draw(joints,target,first_pos,rightArmIndex,leftArmIndex):
        
 # The Second Pose
         x_primeRArm=[]
@@ -44,7 +43,7 @@ def draw(joints,target,first_pos,rightArmIndex,leftArmIndex):
         for i in range(len(lowerChain)):
             x_primeL.append(joints[lowerChain[i]][0])
             y_primeL.append(joints[lowerChain[i]][1])
-            y_primeL.append(joints[lowerChain[i]][2])
+            z_primeL.append(joints[lowerChain[i]][2])
         
         x_primeRLeg=[]
         y_primeRLeg=[]
@@ -110,7 +109,7 @@ def draw(joints,target,first_pos,rightArmIndex,leftArmIndex):
         for i in range(len(lowerChain)):
             x_L.append(first_pos[lowerChain[i]][0])
             y_L.append(first_pos[lowerChain[i]][1])
-            y_L.append(first_pos[lowerChain[i]][2])
+            z_L.append(first_pos[lowerChain[i]][2])
         
         x_RLeg=[]
         y_RLeg=[]
@@ -143,16 +142,17 @@ def draw(joints,target,first_pos,rightArmIndex,leftArmIndex):
         ax.plot3D(x_RLeg,y_RLeg,z_RLeg,color='red')
         ax.plot3D(x_LLeg,y_LLeg,z_LLeg,color='red')
 
-        #ax.plot3D(x_primeRArm,y_primeRArm,z_primeRArm,color='green')
-        #ax.plot3D(x_primeLArm,y_primeLArm,z_primeLArm,color='green')
-        #ax.plot3D(x_primeU,y_primeU,z_primeU,color='green')
-        #ax.plot3D(x_primeL,y_primeL,z_primeL,color='green')
-        #ax.plot3D(x_primeRLeg,y_primeRLeg,z_primeRLeg,color='green')
-        #ax.plot3D(x_primeLLeg,y_primeLLeg,z_primeLLeg,color='green')
+        ax.plot3D(x_primeRArm,y_primeRArm,z_primeRArm,color='green')
+        ax.plot3D(x_primeLArm,y_primeLArm,z_primeLArm,color='green')
+        ax.plot3D(x_primeU,y_primeU,z_primeU,color='green')
+        ax.plot3D(x_primeL,y_primeL,z_primeL,color='green')
+        ax.plot3D(x_primeRLeg,y_primeRLeg,z_primeRLeg,color='green')
+        ax.plot3D(x_primeLLeg,y_primeLLeg,z_primeLLeg,color='green')
 
    
         
           
         
-        #ax.scatter3D(target[0],target[1],target[2])
+        ax.scatter3D(target[0],target[1],target[2])
         plt.show()
+
