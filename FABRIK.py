@@ -41,7 +41,7 @@ class FABRIK:
         leftUpperBody = self.distanceCalc(self.firstPos[0], self.target)
 
         # ON THE RIGHT SIDE OR LEFT
-        if rightUpperBody < leftUpperBody:
+        if rightUpperBody <= leftUpperBody:
             return "right"
         if rightUpperBody > leftUpperBody:
             return "left"
@@ -55,13 +55,16 @@ class FABRIK:
             landa = self.distanceCalc(self.firstPos[ArmIndex[i]], self.firstPos[ArmIndex[i + 1]]) / r
             # find new joint position
             pos = (1 - landa) * self.joints[ArmIndex[i + 1]] + landa * self.joints[ArmIndex[i]]
-            constraintReturn = CF.constraintsFunction.constraint(self.joints, i, self.Theta[ArmIndex[i]],
-                                                                 self.constraintType[ArmIndex[i]], self.target)
-            if constraintReturn[0] == 0:
-                self.joints[ArmIndex[i]] = pos
-            else:
-                for j in range(3):
-                    self.joints[ArmIndex[i]][j] = constraintReturn[j]
+            # constraintReturn = CF.constraintsFunction.constraint(self.joints, i, self.Theta[ArmIndex[i]],
+            #                                                      self.constraintType[ArmIndex[i]], self.target)
+
+            self.joints[ArmIndex[i]] = pos
+
+            # if constraintReturn[0] == 0:
+            #     self.joints[ArmIndex[i]] = pos
+            # else:
+            #     for j in range(3):
+            #         self.joints[ArmIndex[i]][j] = constraintReturn[j]
 
     def updateUpperChain(self, targetPos):
         translatedDistance = self.distanceCalc(self.joints[self.upperChain[0]], self.firstPos[self.upperChain[0]])
@@ -92,13 +95,14 @@ class FABRIK:
             landa = self.distanceCalc(self.firstPos[self.rightLeg[i]], self.firstPos[self.rightLeg[i + 1]]) / r
             # find new joint position
             pos = (1 - landa) * self.joints[self.rightLeg[i + 1]] + landa * self.joints[self.rightLeg[i]]
-            constraintReturn = CF.constraintsFunction.constraint(self.joints, i, self.Theta[self.rightLeg[i]],
-                                                                 self.constraintType[self.rightLeg[i]], self.target)
-            if constraintReturn[0] == 0:
-                self.joints[self.rightLeg[i]] = pos
-            else:
-                for j in range(3):
-                    self.joints[self.rightLeg[i]][j] = constraintReturn[j]
+            self.joints[self.rightLeg[i]] = pos
+            # constraintReturn = CF.constraintsFunction.constraint(self.joints, i, self.Theta[self.rightLeg[i]],
+            #                                                      self.constraintType[self.rightLeg[i]], self.target)
+            # if constraintReturn[0] == 0:
+            #     self.joints[self.rightLeg[i]] = pos
+            # else:
+            #     for j in range(3):
+            #         self.joints[self.rightLeg[i]][j] = constraintReturn[j]
 
             # Left leg
             r = self.distanceCalc(self.joints[self.leftLeg[i]], self.joints[self.leftLeg[i + 1]])
@@ -106,13 +110,14 @@ class FABRIK:
             # find new joint position
             pos = (1 - landa) * self.joints[self.leftLeg[i + 1]] + landa * self.joints[self.leftLeg[i]]
 
-            constraintReturn = CF.constraintsFunction.constraint(self.joints, i, self.Theta[self.leftLeg[i]],
-                                                                 self.constraintType[self.leftLeg[i]], self.target)
-            if constraintReturn[0] == 0:
-                self.joints[self.leftLeg[i]] = pos
-            else:
-                for j in range(3):
-                    self.joints[self.leftLeg[i]][j] = constraintReturn[j]
+            self.joints[self.leftLeg[i]] = pos
+            # constraintReturn = CF.constraintsFunction.constraint(self.joints, i, self.Theta[self.leftLeg[i]],
+            #                                                      self.constraintType[self.leftLeg[i]], self.target)
+            # if constraintReturn[0] == 0:
+            #     self.joints[self.leftLeg[i]] = pos
+            # else:
+            #     for j in range(3):
+            #         self.joints[self.leftLeg[i]][j] = constraintReturn[j]
 
     def backwardARM(self, ArmIndex):
         # set root as initial position
@@ -213,4 +218,3 @@ class FABRIK:
 
         draw(self.joints, self.target, np.loadtxt("length.txt"), self.rightArmIndex, self.leftArmIndex, self.upperChain,
              self.lowerChain, self.rightLeg, self.leftLeg)
-

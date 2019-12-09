@@ -3,7 +3,7 @@ import numpy as np
 
 
 
-targetPosition=[2.2,4.0,6.0]
+targetPosition=[4.2,5.0,10.0]
 originPosition=[0.0,0.0,0.0]
 orientationAngleLimit=0.5
 constraintType = ["ball","ball","hinge","ball","ball","ball","ball","ball","ball","ball","ball","ball"
