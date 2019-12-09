@@ -1,3 +1,7 @@
+import FABRIK
+import numpy as np
+
+
 targetPosition=[2.2,4.0,6.0]
 originPosition=[0.0,0.0,0.0]
 orientationAngleLimit=0.5
