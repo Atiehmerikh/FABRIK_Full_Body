@@ -1,22 +1,25 @@
 import math
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import axes3d, Axes3D
 from pycg3d.cg3d_point import CG3dPoint
 from pycg3d.cg3d_vector import CG3dVector
 from pycg3d import utils
-from pycg3d.cg3d_plane import CG3dPlanePN
-import Constraints as CF
+from Constraints import constraint
 from draw import draw
+
+
+def distance_calculation(i, j):
+    i_point = CG3dPoint(i[0], i[1], i[2])
+    j_point = CG3dPoint(j[0], j[1], j[2])
+
+    return utils.distance(i_point, j_point)
 
 
 class FABRIK:
 
-    def __init__(self, joints, target, origin, orientation, length, Theta, constraintType):
+    def __init__(self, joints, target, orientation, length, theta):
         self.n = len(joints)
         self.joints = joints
         self.orientation = orientation
-        # self.constraintType = constraintType
         self.rightArmIndex = [0, 1, 2, 3, 4]
         self.leftArmIndex = [0, 5, 6, 7, 8]
         self.upperChain = [0, 1, 5, 0]
@@ -24,157 +27,173 @@ class FABRIK:
         self.rightLeg = [13, 12, 11, 9]
         self.leftLeg = [16, 15, 14, 10]
 
-        self.Theta = Theta
-        self.constraintType = constraintType
+        self.Theta = theta
         self.firstPos = length
         self.tolerance = 0.01
         self.target = target
 
-    def distanceCalc(self, i, j):
-        iPoint = CG3dPoint(i[0], i[1], i[2])
-        jPoint = CG3dPoint(j[0], j[1], j[2])
+    def find_target_position(self):
+        right_upper_body = distance_calculation(self.firstPos[0], self.target)
+        left_upper_body = distance_calculation(self.firstPos[0], self.target)
 
-        return (utils.distance(iPoint, jPoint))
-
-    def findingTargetPos(self):
-        rightUpperBody = self.distanceCalc(self.firstPos[0], self.target)
-        leftUpperBody = self.distanceCalc(self.firstPos[0], self.target)
-
-        # ON THE RIGHT SIDE OR LEFT
-        if rightUpperBody <= leftUpperBody:
+        # ON THE RIGHT SIDE OR LEFT relative to base point
+        if right_upper_body <= left_upper_body:
             return "right"
-        if rightUpperBody > leftUpperBody:
+        if right_upper_body > left_upper_body:
             return "left"
 
-    def forwardARM(self, ArmIndex):
+    def forward_arm(self, arm_index):
         # set end effector as target
-        n = len(ArmIndex)
-        self.joints[ArmIndex[n - 1]] = self.target;
+        n = len(arm_index)
+        self.joints[arm_index[n - 1]] = self.target
         for i in range(n - 2, -1, -1):
-            r = self.distanceCalc(self.joints[ArmIndex[i]], self.joints[ArmIndex[i + 1]])
-            landa = self.distanceCalc(self.firstPos[ArmIndex[i]], self.firstPos[ArmIndex[i + 1]]) / r
+            r = distance_calculation(self.joints[arm_index[i]], self.joints[arm_index[i + 1]])
+            landa = distance_calculation(self.firstPos[arm_index[i]], self.firstPos[arm_index[i + 1]]) / r
             # find new joint position
-            pos = (1 - landa) * self.joints[ArmIndex[i + 1]] + landa * self.joints[ArmIndex[i]]
-            # constraintReturn = CF.constraintsFunction.constraint(self.joints, i, self.Theta[ArmIndex[i]],
-            #                                                      self.constraintType[ArmIndex[i]], self.target)
+            pos = (1 - landa) * self.joints[arm_index[i + 1]] + landa * self.joints[arm_index[i]]
 
-            self.joints[ArmIndex[i]] = pos
+            if i < (n - 2):
+                constraint_return = constraint(self.joints, arm_index, i + 1, self.Theta[arm_index[i]],
+                                               self.target, self.firstPos)
+                if constraint_return[0] == 0:
+                    self.joints[arm_index[i]] = pos
+                else:
+                    for j in range(3):
+                        self.joints[arm_index[i]][j] = constraint_return[j]
+            else:
+                self.joints[arm_index[i]] = pos
 
-            # if constraintReturn[0] == 0:
-            #     self.joints[ArmIndex[i]] = pos
-            # else:
-            #     for j in range(3):
-            #         self.joints[ArmIndex[i]][j] = constraintReturn[j]
-
-    def updateUpperChain(self, targetPos):
-        translatedDistance = self.distanceCalc(self.joints[self.upperChain[0]], self.firstPos[self.upperChain[0]])
-        if targetPos == "right":
-            self.joints[self.upperChain[2]] = self.firstPos[self.upperChain[2]] + translatedDistance
-            for p in range(2, len(self.leftArmIndex)):
-                self.joints[self.leftArmIndex[p]] = self.firstPos[self.leftArmIndex[p]] + translatedDistance
+    def update_upper_chain(self, target_position):
+        if target_position == "right":
+            r = distance_calculation(self.joints[self.upperChain[1]], self.joints[self.upperChain[2]])
+            landa = distance_calculation(self.firstPos[self.upperChain[1]], self.firstPos[self.upperChain[2]]) / r
+            # find new joint position
+            pos = (1 - landa) * self.joints[self.upperChain[1]] + landa * self.joints[self.upperChain[2]]
+            self.joints[self.upperChain[2]] = pos
+            self.backward_arm(self.leftArmIndex)
         else:
-            self.joints[self.upperChain[1]] = self.firstPos[self.upperChain[1]] + translatedDistance
-            for p in range(2, len(self.rightArmIndex)):
-                self.joints[self.rightArmIndex[p]] = self.firstPos[self.rightArmIndex[p]] + translatedDistance
+            r = distance_calculation(self.joints[self.upperChain[1]], self.joints[self.upperChain[2]])
+            landa = distance_calculation(self.firstPos[self.upperChain[1]], self.firstPos[self.upperChain[2]]) / r
+            # find new joint position
+            pos = (1 - landa) * self.joints[self.upperChain[2]] + landa * self.joints[self.upperChain[1]]
+            self.joints[self.upperChain[1]] = pos
+            self.backward_arm(self.rightArmIndex)
 
-    def updateLowerChainF(self):
-        translatedDistance = self.distanceCalc(self.joints[self.lowerChain[0]], self.firstPos[self.lowerChain[0]])
-        self.joints[self.lowerChain[1]] = self.firstPos[self.lowerChain[1]] + translatedDistance
-        self.joints[self.lowerChain[2]] = self.firstPos[self.lowerChain[2]] + translatedDistance
+    def update_lower_chain_f(self):
+        r = distance_calculation(self.joints[self.lowerChain[0]], self.joints[self.lowerChain[1]])
+        landa = distance_calculation(self.firstPos[self.lowerChain[0]], self.firstPos[self.lowerChain[1]]) / r
+        # find new joint position
+        pos = (1 - landa) * self.joints[self.lowerChain[0]] + landa * self.joints[self.lowerChain[1]]
+        self.joints[self.lowerChain[1]] = pos
 
-    def updateLowerChainB(self):
-        translatedDistance = self.distanceCalc(self.joints[self.lowerChain[1]], self.firstPos[self.lowerChain[1]])
-        self.joints[self.lowerChain[0]] = self.firstPos[self.lowerChain[0]] + translatedDistance
+        r = distance_calculation(self.joints[self.lowerChain[0]], self.joints[self.lowerChain[2]])
+        landa = distance_calculation(self.firstPos[self.lowerChain[0]], self.firstPos[self.lowerChain[2]]) / r
+        # find new joint position
+        pos = (1 - landa) * self.joints[self.lowerChain[0]] + landa * self.joints[self.lowerChain[2]]
+        self.joints[self.lowerChain[2]] = pos
 
-    def forwardLeg(self):
+    def update_lower_chain_b(self):
+        r = distance_calculation(self.joints[self.lowerChain[0]], self.joints[self.lowerChain[1]])
+        landa = distance_calculation(self.firstPos[self.lowerChain[0]], self.firstPos[self.lowerChain[1]]) / r
+        # find new joint position
+        pos = (1 - landa) * self.joints[self.lowerChain[1]] + landa * self.joints[self.lowerChain[0]]
+        self.joints[self.lowerChain[0]] = pos
+
+    def forward_leg(self):
         # set end effector of leg as target
         n = len(self.rightLeg)
         for i in range(n - 2, -1, -1):
             # Right Leg
-            r = self.distanceCalc(self.joints[self.rightLeg[i]], self.joints[self.rightLeg[i + 1]])
-            landa = self.distanceCalc(self.firstPos[self.rightLeg[i]], self.firstPos[self.rightLeg[i + 1]]) / r
+            r_right = distance_calculation(self.joints[self.rightLeg[i]], self.joints[self.rightLeg[i + 1]])
+            landa_right = distance_calculation(self.firstPos[self.rightLeg[i]],
+                                               self.firstPos[self.rightLeg[i + 1]]) / r_right
+            pos_right = (1 - landa_right) * self.joints[self.rightLeg[i + 1]] + landa_right * self.joints[
+                self.rightLeg[i]]
+
+            r_left = distance_calculation(self.joints[self.leftLeg[i]], self.joints[self.leftLeg[i + 1]])
+            landa_left = distance_calculation(self.firstPos[self.leftLeg[i]],
+                                              self.firstPos[self.leftLeg[i + 1]]) / r_left
+            pos_left = (1 - landa_left) * self.joints[self.leftLeg[i + 1]] + landa_left * self.joints[self.leftLeg[i]]
+
             # find new joint position
-            pos = (1 - landa) * self.joints[self.rightLeg[i + 1]] + landa * self.joints[self.rightLeg[i]]
-            self.joints[self.rightLeg[i]] = pos
-            # constraintReturn = CF.constraintsFunction.constraint(self.joints, i, self.Theta[self.rightLeg[i]],
-            #                                                      self.constraintType[self.rightLeg[i]], self.target)
-            # if constraintReturn[0] == 0:
-            #     self.joints[self.rightLeg[i]] = pos
-            # else:
-            #     for j in range(3):
-            #         self.joints[self.rightLeg[i]][j] = constraintReturn[j]
 
-            # Left leg
-            r = self.distanceCalc(self.joints[self.leftLeg[i]], self.joints[self.leftLeg[i + 1]])
-            landa = self.distanceCalc(self.firstPos[self.leftLeg[i]], self.firstPos[self.leftLeg[i + 1]]) / r
-            # find new joint position
-            pos = (1 - landa) * self.joints[self.leftLeg[i + 1]] + landa * self.joints[self.leftLeg[i]]
+            if i < (n - 2):
+                constraint_return_right = constraint(self.joints, self.rightLeg, i + 1, self.Theta[self.rightLeg[i]],
+                                                     self.target, self.firstPos)
+                constraint_return_left = constraint(self.joints, self.leftLeg, i + 1, self.Theta[self.leftLeg[i]],
+                                                    self.target, self.firstPos)
+                if constraint_return_right[0] == 0:
+                    self.joints[self.rightLeg[i]] = pos_right
+                elif constraint_return_right[0] != 0:
+                    for j in range(3):
+                        self.joints[self.rightLeg[i]][j] = constraint_return_right[j]
+                if constraint_return_left[0] == 0:
+                    self.joints[self.leftLeg[i]] = pos_left
+                elif constraint_return_left[0] != 0:
+                    for j in range(3):
+                        self.joints[self.leftLeg[i]][j] = constraint_return_left[j]
 
-            self.joints[self.leftLeg[i]] = pos
-            # constraintReturn = CF.constraintsFunction.constraint(self.joints, i, self.Theta[self.leftLeg[i]],
-            #                                                      self.constraintType[self.leftLeg[i]], self.target)
-            # if constraintReturn[0] == 0:
-            #     self.joints[self.leftLeg[i]] = pos
-            # else:
-            #     for j in range(3):
-            #         self.joints[self.leftLeg[i]][j] = constraintReturn[j]
+            else:
+                self.joints[self.rightLeg[i]] = pos_right
+                self.joints[self.leftLeg[i]] = pos_left
 
-    def backwardARM(self, ArmIndex):
+    def backward_arm(self, arm_index):
         # set root as initial position
-        n = len(ArmIndex)
+        n = len(arm_index)
         for i in range(1, n):
-            r = self.distanceCalc(self.joints[ArmIndex[i]], self.joints[ArmIndex[i - 1]])
-            landa = self.distanceCalc(self.firstPos[ArmIndex[i]], self.firstPos[ArmIndex[i - 1]]) / r
+            r = distance_calculation(self.joints[arm_index[i]], self.joints[arm_index[i - 1]])
+            landa = distance_calculation(self.firstPos[arm_index[i]], self.firstPos[arm_index[i - 1]]) / r
             # find new joint position
-            pos = (1 - landa) * self.joints[ArmIndex[i - 1]] + landa * self.joints[ArmIndex[i]]
-            self.joints[ArmIndex[i]] = pos;
+            pos = (1 - landa) * self.joints[arm_index[i - 1]] + landa * self.joints[arm_index[i]]
+            self.joints[arm_index[i]] = pos
 
-    def backwardLeg(self):
+    def backward_leg(self):
         # set root as initial position
         self.joints[self.rightLeg[0]] = self.firstPos[self.rightLeg[0]]
         self.joints[self.leftLeg[0]] = self.firstPos[self.leftLeg[0]]
         n = len(self.rightLeg)
         for i in range(1, n):
             # for Right leg
-            r = self.distanceCalc(self.joints[self.rightLeg[i]], self.joints[self.rightLeg[i - 1]])
-            landa = self.distanceCalc(self.firstPos[self.rightLeg[i]], self.firstPos[self.rightLeg[i - 1]]) / r
+            r = distance_calculation(self.joints[self.rightLeg[i]], self.joints[self.rightLeg[i - 1]])
+            landa = distance_calculation(self.firstPos[self.rightLeg[i]], self.firstPos[self.rightLeg[i - 1]]) / r
             # find new joint position
             pos = (1 - landa) * self.joints[self.rightLeg[i - 1]] + landa * self.joints[self.rightLeg[i]]
-            self.joints[self.rightLeg[i]] = pos;
+            self.joints[self.rightLeg[i]] = pos
             # for left leg
-            r = self.distanceCalc(self.joints[self.leftLeg[i]], self.joints[self.leftLeg[i - 1]])
-            landa = self.distanceCalc(self.firstPos[self.leftLeg[i]], self.firstPos[self.leftLeg[i - 1]]) / r
+            r = distance_calculation(self.joints[self.leftLeg[i]], self.joints[self.leftLeg[i - 1]])
+            landa = distance_calculation(self.firstPos[self.leftLeg[i]], self.firstPos[self.leftLeg[i - 1]]) / r
             # find new joint position
             pos = (1 - landa) * self.joints[self.leftLeg[i - 1]] + landa * self.joints[self.leftLeg[i]]
-            self.joints[self.leftLeg[i]] = pos;
+            self.joints[self.leftLeg[i]] = pos
 
     def solve(self):
-        sumL = 0
-        targetPos = self.findingTargetPos()
-        if targetPos == "right":
+        sum_l = 0
+        target_pos = self.find_target_position()
+        if target_pos == "right":
             # arm length
             for i in range(len(self.rightArmIndex) - 1):
-                sumL = sumL + self.distanceCalc(self.firstPos[self.rightArmIndex[i]],
-                                                self.firstPos[self.rightArmIndex[i + 1]])
+                sum_l = sum_l + distance_calculation(self.firstPos[self.rightArmIndex[i]],
+                                                     self.firstPos[self.rightArmIndex[i + 1]])
             # chain length
-            sumL = sumL + self.distanceCalc(self.firstPos[0], self.firstPos[self.rightLeg[len(self.rightLeg) - 1]])
+            sum_l = sum_l + distance_calculation(self.firstPos[0], self.firstPos[self.rightLeg[len(self.rightLeg) - 1]])
             # Leg length
             for i in range(len(self.rightLeg) - 1):
-                sumL = sumL + self.distanceCalc(self.firstPos[self.rightLeg[i]], self.firstPos[self.rightLeg[i + 1]])
-            if sumL < self.distanceCalc(self.firstPos[self.rightLeg[0]], self.target):
+                sum_l = sum_l + distance_calculation(self.firstPos[self.rightLeg[i]],
+                                                     self.firstPos[self.rightLeg[i + 1]])
+            if sum_l < distance_calculation(self.firstPos[self.rightLeg[0]], self.target):
                 print("target is out of reach!!!!!!!")
                 return
         else:
             # arm length
             for i in range(len(self.leftArmIndex) - 1):
-                sumL = sumL + self.distanceCalc(self.firstPos[self.leftArmIndex[i]],
-                                                self.firstPos[self.leftArmIndex[i + 1]])
+                sum_l = sum_l + distance_calculation(self.firstPos[self.leftArmIndex[i]],
+                                                     self.firstPos[self.leftArmIndex[i + 1]])
             # chain length
-            sumL = sumL + self.distanceCalc(self.firstPos[0], self.firstPos[self.leftLeg[len(self.leftLeg) - 1]])
+            sum_l = sum_l + distance_calculation(self.firstPos[0], self.firstPos[self.leftLeg[len(self.leftLeg) - 1]])
             # Leg length
             for i in range(len(self.leftLeg) - 1):
-                sumL = sumL + self.distanceCalc(self.firstPos[self.leftLeg[i]], self.firstPos[self.leftLeg[i + 1]])
-            if sumL < self.distanceCalc(self.firstPos[self.leftLeg[0]], self.target):
+                sum_l = sum_l + distance_calculation(self.firstPos[self.leftLeg[i]], self.firstPos[self.leftLeg[i + 1]])
+            if sum_l < distance_calculation(self.firstPos[self.leftLeg[0]], self.target):
                 print("target is out of reach!!!!!!!")
                 return
         for p in range(0, len(self.joints)):
@@ -184,37 +203,36 @@ class FABRIK:
                     return
 
             # target is in reach
-            bcount = 0;
-            if targetPos == "right":
+            counter = 0
+            if target_pos == "right":
                 n = len(self.rightArmIndex)
-                dif = self.distanceCalc(self.joints[self.rightArmIndex[n - 1]], self.target)
+                dif = distance_calculation(self.joints[self.rightArmIndex[n - 1]], self.target)
             else:
                 n = len(self.leftArmIndex)
-                dif = self.distanceCalc(self.joints[self.leftArmIndex[n - 1]], self.target)
+                dif = distance_calculation(self.joints[self.leftArmIndex[n - 1]], self.target)
 
             while dif > self.tolerance:
-                if targetPos == "right":
-                    self.forwardARM(self.rightArmIndex)
+                if target_pos == "right":
+                    self.forward_arm(self.rightArmIndex)
                 else:
-                    self.forwardARM(self.leftArmIndex)
-                self.updateUpperChain(targetPos)
-                self.updateLowerChainF()
-                self.forwardLeg()
+                    self.forward_arm(self.leftArmIndex)
+                self.update_upper_chain(target_pos)
+                self.update_lower_chain_f()
+                self.forward_leg()
 
-                self.backwardLeg()
-                self.updateLowerChainB()
-                if targetPos == "right":
-                    self.backwardARM(self.rightArmIndex)
+                self.backward_leg()
+                self.update_lower_chain_b()
+                if target_pos == "right":
+                    self.backward_arm(self.rightArmIndex)
                 else:
-                    self.backwardARM(self.leftArmIndex)
-                self.updateUpperChain(targetPos)
-                if targetPos == "right":
-                    dif = self.distanceCalc(self.joints[self.rightArmIndex[n - 1]], self.target)
+                    self.backward_arm(self.leftArmIndex)
+                self.update_upper_chain(target_pos)
+                if target_pos == "right":
+                    dif = distance_calculation(self.joints[self.rightArmIndex[n - 1]], self.target)
                 else:
-                    dif = self.distanceCalc(self.joints[self.leftArmIndex[n - 1]], self.target)
-                bcount = bcount + 1
-                if bcount > 10:
+                    dif = distance_calculation(self.joints[self.leftArmIndex[n - 1]], self.target)
+                counter = counter + 1
+                if counter > 10:
                     break
-
         draw(self.joints, self.target, np.loadtxt("length.txt"), self.rightArmIndex, self.leftArmIndex, self.upperChain,
              self.lowerChain, self.rightLeg, self.leftLeg)
