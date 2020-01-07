@@ -1,9 +1,8 @@
-import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d, Axes3D
 
 
-def draw(joints, target, first_pos, rightArmIndex, leftArmIndex, upperChain, lowerChain, rightLeg, leftLeg):
+def draw(joints, target, first_pos, rightArmIndex, leftArmIndex, upperChain, lowerChain, rightLeg, leftLeg, neck):
     # The Second Pose
     x_primeRArm = []
     y_primeRArm = []
@@ -64,6 +63,16 @@ def draw(joints, target, first_pos, rightArmIndex, leftArmIndex, upperChain, low
         x_primeLLeg.append(joints[leftLeg[i]][0])
         y_primeLLeg.append(joints[leftLeg[i]][1])
         z_primeLLeg.append(joints[leftLeg[i]][2])
+
+    x_primeNeck = []
+    y_primeNeck = []
+    z_primeNeck = []
+
+    # Right Shoulder
+    for i in range(len(neck)):
+        x_primeNeck.append(joints[neck[i]][0])
+        y_primeNeck.append(joints[neck[i]][1])
+        z_primeNeck.append(joints[neck[i]][2])
 
     # ...............................................................................................
 
@@ -129,6 +138,16 @@ def draw(joints, target, first_pos, rightArmIndex, leftArmIndex, upperChain, low
         y_LLeg.append(first_pos[leftLeg[i]][1])
         z_LLeg.append(first_pos[leftLeg[i]][2])
 
+    x_Neck = []
+    y_Neck = []
+    z_Neck = []
+
+    # Right Shoulder
+    for i in range(len(neck)):
+        x_Neck.append(first_pos[neck[i]][0])
+        y_Neck.append(first_pos[neck[i]][1])
+        z_Neck.append(first_pos[neck[i]][2])
+
     fig = plt.figure()
     ax = Axes3D(fig)
 
@@ -138,6 +157,7 @@ def draw(joints, target, first_pos, rightArmIndex, leftArmIndex, upperChain, low
     ax.plot3D(x_L, y_L, z_L, color='red')
     ax.plot3D(x_RLeg, y_RLeg, z_RLeg, color='red')
     ax.plot3D(x_LLeg, y_LLeg, z_LLeg, color='red')
+    ax.plot3D(x_Neck, y_Neck, z_Neck, color='red')
 
     ax.plot3D(x_primeRArm, y_primeRArm, z_primeRArm, color='green')
     ax.plot3D(x_primeLArm, y_primeLArm, z_primeLArm, color='green')
@@ -145,7 +165,7 @@ def draw(joints, target, first_pos, rightArmIndex, leftArmIndex, upperChain, low
     ax.plot3D(x_primeL, y_primeL, z_primeL, color='green')
     ax.plot3D(x_primeRLeg, y_primeRLeg, z_primeRLeg, color='green')
     ax.plot3D(x_primeLLeg, y_primeLLeg, z_primeLLeg, color='green')
+    ax.plot3D(x_primeNeck, y_primeNeck, z_primeNeck, color='green')
 
     ax.scatter3D(target[0], target[1], target[2])
     plt.show()
-

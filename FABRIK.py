@@ -26,6 +26,7 @@ class FABRIK:
         self.lowerChain = [0, 9, 10, 0]
         self.rightLeg = [13, 12, 11, 9]
         self.leftLeg = [16, 15, 14, 10]
+        self.neck=[0,17]
 
         self.Theta = theta
         self.firstPos = length
@@ -235,4 +236,4 @@ class FABRIK:
                 if counter > 10:
                     break
         draw(self.joints, self.target, np.loadtxt("length.txt"), self.rightArmIndex, self.leftArmIndex, self.upperChain,
-             self.lowerChain, self.rightLeg, self.leftLeg)
+             self.lowerChain, self.rightLeg, self.leftLeg,self.neck)
