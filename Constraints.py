@@ -4,7 +4,10 @@ from pycg3d.cg3d_vector import CG3dVector
 from pycg3d import utils
 
 
-def constraint(joints, body_index, i, theta, target, length):
+def constraint(joints, body_index, i, theta, length, constraint_type):
+    pi=22/7
+    theta = (pi/180)*theta
+    si = 0.5
     p_i = CG3dPoint(joints[body_index[i]][0], joints[body_index[i]][1], joints[body_index[i]][2])
     p_next_i = CG3dPoint(joints[body_index[i + 1]][0], joints[body_index[i + 1]][1], joints[body_index[i + 1]][2])
     p_before_i = CG3dPoint(joints[body_index[i - 1]][0], joints[body_index[i - 1]][1], joints[body_index[i - 1]][2])
@@ -18,144 +21,218 @@ def constraint(joints, body_index, i, theta, target, length):
     v_i_before = CG3dVector(p_before_i[0] - p_i[0], p_before_i[1] - p_i[1], p_before_i[2] - p_i[2])
     v_next_i = CG3dVector(p_i[0] - p_next_i[0], p_i[1] - p_next_i[1], p_i[2] - p_next_i[2])
 
-    # if constraint_type == "hinge":
-    #     NfirstPage = v_i_before ^ v_next_i
-    #     # arbitrary point on first page
-    #     p_arbit = CG3dPoint(joints[i - 1][0] + 5, joints[i - 1][1], joints[i - 1][2])
-    #     p_globalTarget = CG3dPoint(target[0], target[1], target[2])
-    #
-    #     v_l1 = CG3dVector(p_arbit[0] - p_before_i[0], p_arbit[1] - p_before_i[1], p_arbit[2] - p_before_i[2])
-    #     v_lprime1 = CG3dVector(p_globalTarget[0] - p_before_i[0], p_globalTarget[1] - p_before_i[1],
-    #                            p_globalTarget[2] - p_before_i[2])
-    #
-    #     NsecondPage = v_lprime1 ^ v_l1
-    #     # image of p_i on second page:
-    #     v = CG3dVector(p_before_i[0] - p_i[0], p_before_i[1] - p_i[1], p_before_i[2] - p_i[2])
-    #     d = v * NsecondPage
-    #     p_hatOnSecondPage = d * NsecondPage + v
-    #     p_iOnSecondPage = CG3dPoint(p_hatOnSecondPage[0], p_hatOnSecondPage[1], p_hatOnSecondPage[2])
-    #
-    #     d1 = utils.distance(p_globalTarget, p_iOnSecondPage)
-    #     unitv_l2 = CG3dVector((p_globalTarget[0] - p_iOnSecondPage[0]) / d1,
-    #                           (p_globalTarget[1] - p_iOnSecondPage[1]) / d1,
-    #                           (p_globalTarget[2] - p_iOnSecondPage[2]) / d1)
-    #     p_primei = p_globalTarget + d1 * unitv_l2
-    #
-    #     d2 = utils.distance(p_primei, p_before_i)
-    #     unitv_l2prime = CG3dVector((p_primei[0] - p_before_i[0]) / d2, (p_primei[1] - p_before_i[1]) / d2,
-    #                                (p_primei[2] - p_before_i[2]) / d2)
-    #     p_primetarget = p_primei + d2 * unitv_l2prime
-    #
-    #     return p_primetarget
+    if (constraint_type == "hinge"):
+        # defining a line l_1 in paper:
+        l_before_i_firstpose = utils.distance(p_i_first_pose, p_before_i_first_pose)
+        v_before_i_firstpose = CG3dVector((p_i_first_pose[0] - p_before_i_first_pose[0]) / l_before_i_firstpose,
+                                          (p_i_first_pose[1] - p_before_i_first_pose[1]) / l_before_i_firstpose,
+                                          (p_i_first_pose[2] - p_before_i_first_pose[2]) / l_before_i_firstpose)
+        l_i_firstpose_next_firstpose = utils.distance(p_i_first_pose, p_next_i_first_pose)
+        v_i_firstpose_next_firstpose = CG3dVector(
+            (p_next_i_first_pose[0] - p_i_first_pose[0]) / l_i_firstpose_next_firstpose,
+            (p_next_i_first_pose[1] - p_i_first_pose[1]) / l_i_firstpose_next_firstpose,
+            (p_next_i_first_pose[2] - p_i_first_pose[2]) / l_i_firstpose_next_firstpose)
 
-    # define points
-    # some vector
+        normal_vector_phi1 = v_before_i_firstpose ^ v_i_firstpose_next_firstpose
 
-    dot_prod = v_i_before * v_next_i
-    l_i_before = utils.distance(p_i_first_pose, p_before_i_first_pose)
-    l_next_i = utils.distance(p_i_first_pose, p_next_i_first_pose)
+        l_before_next_firstpose = utils.distance(p_next_i_first_pose, p_before_i_first_pose)
+        v_before_next_firstpose = CG3dVector(
+            (p_next_i_first_pose[0] - p_before_i_first_pose[0]) / l_before_next_firstpose,
+            (p_next_i_first_pose[1] - p_before_i_first_pose[1]) / l_before_next_firstpose,
+            (p_next_i_first_pose[2] - p_before_i_first_pose[2]) / l_before_next_firstpose)
 
-    l_i_o = dot_prod / l_next_i
+        l1 = normal_vector_phi1 ^ v_before_next_firstpose
 
-    # a unit vector of a line passing p(i+1) and P(i)
-    unit_vec_next_i = CG3dVector((p_i[0] - p_next_i[0]) / l_next_i, (p_i[1] - p_next_i[1]) / l_next_i,
-                                 (p_i[2] - p_next_i[2]) / l_next_i)
-    # vector from p(i) to point o
-    v_i_o = l_i_o * unit_vec_next_i
+        # for phi_2
+        l_before_next = utils.distance(p_next_i, p_before_i_first_pose)
+        v_before_next = CG3dVector((p_next_i[0] - p_before_i_first_pose[0]) / l_before_next,
+                                   (p_next_i[1] - p_before_i_first_pose[1]) / l_before_next,
+                                   (p_next_i[2] - p_before_i_first_pose[2]) / l_before_next)
+        v_l1 = CG3dVector(l1[0], l1[1], l1[2])
 
-    # points based on the paper definition
-    o = CG3dPoint(v_i_o[0] + p_i[0], v_i_o[1] + p_i[1], v_i_o[2] + p_i[2])
-    s = utils.distance(o, p_i)
+        normal_vector_phi2 = v_before_next ^ v_l1
+        # the equation to solve for p_i new position
 
-    # Semi ellipsoidal parameter qi (1,2,3,4)
-    q1 = s * math.tan(theta[0])
-    q2 = s * math.tan(theta[1])
-    q3 = s * math.tan(theta[2])
-    q4 = s * math.tan(theta[3])
+        # image of p_i on second page:
+        d = v_before_i_firstpose * normal_vector_phi2
+        v_before_hat = v_before_i_firstpose - d * normal_vector_phi2
+        p_hat = CG3dPoint(v_before_hat[0] + p_before_i_first_pose[0], v_before_hat[1] + p_before_i_first_pose[1],
+                          v_before_hat[2] + p_before_i_first_pose[2])
+        # l2 which is a line between p_next and p_hat
+        l_next_hat = utils.distance(p_next_i, p_hat)
+        unit_l2 = CG3dVector((p_hat[0] - p_next_i[0]) / l_next_hat,
+                             (p_hat[0] - p_next_i[0]) / l_next_hat,
+                             (p_hat[0] - p_next_i[0]) / l_next_hat)
+        p_primei = p_next_i + l_i_firstpose_next_firstpose * unit_l2
 
-    # change the coordinate to cross section of cone and calculating the (i-1)th position in it
+        l_prime_before = utils.distance(p_primei, p_before_i)
+        v_prime_i_before = CG3dVector(p_before_i[0] - p_primei[0], p_before_i[1] - p_primei[1],
+                                      p_before_i[2] - p_primei[2])
+        # a unit vector of a line passing p(i-1) and P'(i)
+        unit_prime_before = CG3dVector(v_prime_i_before[0] / l_prime_before, v_prime_i_before[1] / l_prime_before,
+                                       v_prime_i_before[2] / l_prime_before)
+        p_before_prime = p_primei + l_before_i_firstpose * unit_prime_before
 
-    l_o_before = utils.distance(o, p_before_i)
-    unit_v_o_before = CG3dVector((p_before_i[0] - o[0]) / l_o_before, (p_before_i[1] - o[1]) / l_o_before,
-                                 (p_before_i[2] - o[2]) / l_o_before)
+        v_prime_i_before_prime = CG3dVector(p_before_prime[0] - p_primei[0], p_before_prime[1] - p_primei[1],
+                                            p_before_prime[2] - p_primei[2])
 
-    si = 0.5
-    y_t = l_o_before * math.cos(si)
-    x_t = l_o_before * math.sin(si)
+        # finding o_hinge to know it is in limited zone
+        v_next_prime_i = CG3dVector(p_primei[0] - p_next_i[0], p_primei[1] - p_next_i[1], p_primei[2] - p_next_i[2])
+        l_next_prime = utils.distance(p_primei, p_next_i)
 
-    # finding the sector of the target position
+        l_prime_o = (v_next_prime_i * v_prime_i_before_prime) / l_next_prime
 
-    if (x_t > 0 and y_t > 0) or (x_t >= 0 and y_t == 0) or (x_t == 0 and y_t > 0):
-        sector = 1
-    elif (x_t > 0 > y_t) or (x_t > 0 and y_t == 0) or (x_t == 0 and y_t < 0):
-        sector = 2
-    elif (x_t < 0 and y_t < 0) or (x_t < 0 and y_t == 0) or (x_t == 0 and y_t < 0):
-        sector = 3
-    else:
-        sector = 4
-    # elif (x_t < 0 < y_t) or (x_t < 0 and y_t == 0) or (x_t == 0 and y_t > 0):
+        # a unit vector of a line passing p(i+1) and P'(i)
+        unit_vec_next_prime = CG3dVector((p_primei[0] - p_next_i[0]) / l_next_prime,
+                                         (p_primei[1] - p_next_i[1]) / l_next_prime,
+                                         (p_primei[2] - p_next_i[2]) / l_next_prime)
 
-    # checking that the target point is in ellipsoidal shape
-    inbound = 0
-    if ((x_t ** 2) / (q2 ** 2) + (y_t ** 2) / (q3 ** 2)) < 1 and sector == 1:
-        inbound = 1
-        p_prime = CG3dPoint(0, 0, 0)
+        v_prime_o = l_prime_o * unit_vec_next_prime
+        o_hinge = CG3dPoint(v_prime_o[0] + p_primei[0], v_prime_o[1] + p_primei[1], v_prime_o[2] + p_primei[2])
+        s_hinge = utils.distance(p_primei, o_hinge)
+        q_2 = s_hinge * math.tan(theta[1])
+        q_4 = s_hinge * math.tan(theta[3])
+
+        # finding that the p_before is on right or left  of o:
+        cross_product = v_prime_i_before_prime ^ v_prime_o
+        angle_io_ibefore = (math.sqrt(cross_product * cross_product)) / (l_prime_o * l_prime_before)
+
+        l_o_before_prime = utils.distance(o_hinge, p_before_prime)
+
+        # the distance between o and p_before_i:
+        if (angle_io_ibefore <= 0):
+            if (l_o_before_prime <= q_2):
+                return p_before_prime
+            else:
+                circle_center = p_primei
+                radius_circle = utils.distance(p_primei, p_before_prime)
+                U = CG3dVector((p_before_prime[0] - p_primei[0]) / radius_circle,
+                               (p_before_prime[1] - p_primei[1]) / radius_circle,
+                               (p_before_prime[2] - p_primei[2]) / radius_circle)
+                V = normal_vector_phi2 ^ U
+                angle_difference = angle_io_ibefore - theta[1]
+                p_before_prime = circle_center + radius_circle * math.cos(
+                    angle_difference) * U + radius_circle * math.sin(angle_difference) * V
+                return p_before_prime
+        elif (angle_io_ibefore > 0):
+            if (l_o_before_prime <= q_4):
+                return p_before_prime
+            else:
+                circle_center = p_primei
+                radius_circle = utils.distance(p_primei, p_before_prime)
+                U = CG3dVector((p_before_prime[0] - p_primei[0]) / radius_circle,
+                               (p_before_prime[1] - p_primei[1]) / radius_circle,
+                               (p_before_prime[2] - p_primei[2]) / radius_circle)
+                V = normal_vector_phi2 ^ U
+                angle_difference = 3.14 / 2 + angle_io_ibefore - theta[3]
+                p_before_prime = circle_center + radius_circle * math.cos(
+                    angle_difference) * U + radius_circle * math.sin(angle_difference) * V
+                return p_before_prime
+    if (constraint_type == "ballAndSocket"):
+        dot_prod = v_i_before * v_next_i
+        l_i_before = utils.distance(p_i_first_pose, p_before_i_first_pose)
+        l_next_i = utils.distance(p_i_first_pose, p_next_i_first_pose)
+
+        l_i_o = dot_prod / l_next_i
+
+        # a unit vector of a line passing p(i+1) and P(i)
+        unit_vec_next_i = CG3dVector((p_i[0] - p_next_i[0]) / l_next_i, (p_i[1] - p_next_i[1]) / l_next_i,
+                                     (p_i[2] - p_next_i[2]) / l_next_i)
+        # vector from p(i) to point o
+        v_i_o = l_i_o * unit_vec_next_i
+
+        # points based on the paper definition
+        o = CG3dPoint(v_i_o[0] + p_i[0], v_i_o[1] + p_i[1], v_i_o[2] + p_i[2])
+        s = utils.distance(o, p_i)
+
+        # Semi ellipsoidal parameter qi (1,2,3,4)
+        q1 = s * math.tan(theta[0])
+        q2 = s * math.tan(theta[1])
+        q3 = s * math.tan(theta[2])
+        q4 = s * math.tan(theta[3])
+
+        # change the coordinate to cross section of cone and calculating the (i-1)th position in it
+
+        l_o_before = utils.distance(o, p_before_i)
+        unit_v_o_before = CG3dVector((p_before_i[0] - o[0]) / l_o_before, (p_before_i[1] - o[1]) / l_o_before,
+                                     (p_before_i[2] - o[2]) / l_o_before)
+
+        y_t = l_o_before * math.cos(si)
+        x_t = l_o_before * math.sin(si)
+
+        # finding the sector of the target position
+
+        if (x_t > 0 and y_t > 0) or (x_t >= 0 and y_t == 0) or (x_t == 0 and y_t > 0):
+            sector = 1
+        elif (x_t > 0 > y_t) or (x_t > 0 and y_t == 0) or (x_t == 0 and y_t < 0):
+            sector = 2
+        elif (x_t < 0 and y_t < 0) or (x_t < 0 and y_t == 0) or (x_t == 0 and y_t < 0):
+            sector = 3
+        else:
+            sector = 4
+        # elif (x_t < 0 < y_t) or (x_t < 0 and y_t == 0) or (x_t == 0 and y_t > 0):
+
+        # checking that the target point is in ellipsoidal shape
+        inbound = 0
+        if ((x_t ** 2) / (q2 ** 2) + (y_t ** 2) / (q3 ** 2)) < 1 and sector == 1:
+            inbound = 1
+            p_prime = CG3dPoint(0, 0, 0)
+            return p_prime
+        elif ((x_t ** 2) / (q2 ** 2) + (y_t ** 2) / (q1 ** 2)) < 1 and sector == 2:
+            inbound = 1
+            p_prime = CG3dPoint(0, 0, 0)
+            return p_prime
+        elif ((x_t ** 2) / (q4 ** 2) + (y_t ** 2) / (q1 ** 2)) < 1 and sector == 3:
+            inbound = 1
+            p_prime = CG3dPoint(0, 0, 0)
+            return p_prime
+        elif ((x_t ** 2) / (q4 ** 2) + (y_t ** 2) / (q3 ** 2)) < 1 and sector == 4:
+            inbound = 1
+            p_prime = CG3dPoint(0, 0, 0)
+            return p_prime
+        # if it is out bound of the ellipsoidal shape we should find the nearest point on ellipsoidal shape
+        if inbound == 0 and sector == 1:
+            x_nearest_point = find_nearest_point(q2, q3, sector, x_t, y_t)
+            y_nearest_point = math.sqrt(abs(q3 ** 2 - q3 ** 2 / q2 ** 2 * x_nearest_point ** 2))
+        elif inbound == 0 and sector == 2:
+            x_nearest_point = find_nearest_point(q2, q1, sector, x_t, y_t)
+            y_nearest_point = -math.sqrt(abs(q1 ** 2 - q1 ** 2 / q2 ** 2 * x_nearest_point ** 2))
+        elif inbound == 0 and sector == 3:
+            x_nearest_point = find_nearest_point(q4, q1, sector, x_t, y_t)
+            y_nearest_point = -math.sqrt(abs(q1 ** 2 - q1 ** 2 / q4 ** 2 * x_nearest_point ** 2))
+        elif inbound == 0 and sector == 4:
+            x_nearest_point = find_nearest_point(q2, q3, sector, x_t, y_t)
+            y_nearest_point = math.sqrt(abs(q3 ** 2 - q3 ** 2 / q2 ** 2 * x_nearest_point ** 2))
+
+        # finding 2 point on 2d cross section plane
+        point1 = points_on_2d_cone_cross_section(o, p_i, p_before_i, unit_v_o_before, x_t, y_t, 1)
+        point2 = points_on_2d_cone_cross_section(o, p_i, p_before_i, unit_v_o_before, x_t, y_t, 2)
+
+        # finding two vector in 2D cross section plane:
+        l_o_point1 = utils.distance(o, point1)
+        l_o_point2 = utils.distance(o, point2)
+        v1 = CG3dVector((-point1[0] + o[0]) / l_o_point1, (-point1[1] + o[1]) / l_o_point1,
+                        (-point1[2] + o[2]) / l_o_point1)
+        v2 = CG3dVector((-point2[0] + o[0]) / l_o_point2, (-point2[1] + o[1]) / l_o_point2,
+                        (-point2[2] + o[2]) / l_o_point2)
+
+        # 3D coordinate of nearest point in ellipse:
+        x_phat = o[0] + x_nearest_point * v1[0] + y_nearest_point * v2[0]
+        y_phat = o[1] + x_nearest_point * v1[1] + y_nearest_point * v2[1]
+        z_phat = o[2] + x_nearest_point * v1[2] + y_nearest_point * v2[2]
+
+        # unit vector from p(i)to Phat(i-1)
+        p_hat = CG3dPoint(x_phat, y_phat, z_phat)
+        l_i_p_hat = utils.distance(p_i, p_hat)
+        unit_vector_i_p_hat = CG3dVector((p_hat[0] - p_i[0]) / l_i_p_hat, (p_hat[1] - p_i[1]) / l_i_p_hat,
+                                         (p_hat[2] - p_i[2]) / l_i_p_hat)
+
+        # position of p'(i-1).......
+
+        p_prime = CG3dPoint(p_i[0] + l_i_before * unit_vector_i_p_hat[0], p_i[1] + l_i_before * unit_vector_i_p_hat[1],
+                            p_i[2] + l_i_before * unit_vector_i_p_hat[2])
+
         return p_prime
-    elif ((x_t ** 2) / (q2 ** 2) + (y_t ** 2) / (q1 ** 2)) < 1 and sector == 2:
-        inbound = 1
-        p_prime = CG3dPoint(0, 0, 0)
-        return p_prime
-    elif ((x_t ** 2) / (q4 ** 2) + (y_t ** 2) / (q1 ** 2)) < 1 and sector == 3:
-        inbound = 1
-        p_prime = CG3dPoint(0, 0, 0)
-        return p_prime
-    elif ((x_t ** 2) / (q4 ** 2) + (y_t ** 2) / (q3 ** 2)) < 1 and sector == 4:
-        inbound = 1
-        p_prime = CG3dPoint(0, 0, 0)
-        return p_prime
-    # if it is out bound of the ellipsoidal shape we should find the nearest point on ellipsoidal shape
-    if inbound == 0 and sector == 1:
-        x_nearest_point = find_nearest_point(q2, q3, sector, x_t, y_t)
-        y_nearest_point = math.sqrt(abs(q3 ** 2 - q3 ** 2 / q2 ** 2 * x_nearest_point ** 2))
-    elif inbound == 0 and sector == 2:
-        x_nearest_point = find_nearest_point(q2, q1, sector, x_t, y_t)
-        y_nearest_point = -math.sqrt(abs(q1 ** 2 - q1 ** 2 / q2 ** 2 * x_nearest_point ** 2))
-    elif inbound == 0 and sector == 3:
-        x_nearest_point = find_nearest_point(q4, q1, sector, x_t, y_t)
-        y_nearest_point = -math.sqrt(abs(q1 ** 2 - q1 ** 2 / q4 ** 2 * x_nearest_point ** 2))
-    elif inbound == 0 and sector == 4:
-        x_nearest_point = find_nearest_point(q2, q3, sector, x_t, y_t)
-        y_nearest_point = math.sqrt(abs(q3 ** 2 - q3 ** 2 / q2 ** 2 * x_nearest_point ** 2))
-
-    # finding 2 point on 2d cross section plane
-    point1 = points_on_2d_cone_cross_section(o, p_i, p_before_i, unit_v_o_before, x_t, y_t, 1)
-    point2 = points_on_2d_cone_cross_section(o, p_i, p_before_i, unit_v_o_before, x_t, y_t, 2)
-
-    # finding two vector in 2D cross section plane:
-    l_o_point1 = utils.distance(o, point1)
-    l_o_point2 = utils.distance(o, point2)
-    v1 = CG3dVector((-point1[0] + o[0]) / l_o_point1, (-point1[1] + o[1]) / l_o_point1,
-                    (-point1[2] + o[2]) / l_o_point1)
-    v2 = CG3dVector((-point2[0] + o[0]) / l_o_point2, (-point2[1] + o[1]) / l_o_point2,
-                    (-point2[2] + o[2]) / l_o_point2)
-
-    # 3D coordinate of nearest point in ellipse:
-    x_phat = o[0] + x_nearest_point * v1[0] + y_nearest_point * v2[0]
-    y_phat = o[1] + x_nearest_point * v1[1] + y_nearest_point * v2[1]
-    z_phat = o[2] + x_nearest_point * v1[2] + y_nearest_point * v2[2]
-
-    # unit vector from p(i)to Phat(i-1)
-    p_hat = CG3dPoint(x_phat, y_phat, z_phat)
-    l_i_p_hat = utils.distance(p_i, p_hat)
-    unit_vector_i_p_hat = CG3dVector((p_hat[0] - p_i[0]) / l_i_p_hat, (p_hat[1] - p_i[1]) / l_i_p_hat,
-                                     (p_hat[2] - p_i[2]) / l_i_p_hat)
-
-    # position of p'(i-1).......
-
-    p_prime = CG3dPoint(p_i[0] + l_i_before * unit_vector_i_p_hat[0], p_i[1] + l_i_before * unit_vector_i_p_hat[1],
-                        p_i[2] + l_i_before * unit_vector_i_p_hat[2])
-
-    return p_prime
 
 
 def points_on_2d_cone_cross_section(o, p_i, p_target, unit_vector_o_target, x_t, y_t, i):

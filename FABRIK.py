@@ -1,7 +1,5 @@
-import math
 import numpy as np
 from pycg3d.cg3d_point import CG3dPoint
-from pycg3d.cg3d_vector import CG3dVector
 from pycg3d import utils
 from Constraints import constraint
 from draw import draw
@@ -16,7 +14,7 @@ def distance_calculation(i, j):
 
 class FABRIK:
 
-    def __init__(self, joints, target, orientation, length, theta):
+    def __init__(self, joints, target, orientation, length, theta,constraint_type):
         self.n = len(joints)
         self.joints = joints
         self.orientation = orientation
@@ -27,6 +25,9 @@ class FABRIK:
         self.rightLeg = [13, 12, 11, 9]
         self.leftLeg = [16, 15, 14, 10]
         self.neck=[0,17]
+        self.head=[17,18]
+        self.constraint_type=constraint_type
+
 
         self.Theta = theta
         self.firstPos = length
@@ -39,9 +40,9 @@ class FABRIK:
 
         # ON THE RIGHT SIDE OR LEFT relative to base point
         if right_upper_body <= left_upper_body:
-            return "right"
-        if right_upper_body > left_upper_body:
             return "left"
+        if right_upper_body > left_upper_body:
+            return "right"
 
     def forward_arm(self, arm_index):
         # set end effector as target
@@ -54,8 +55,7 @@ class FABRIK:
             pos = (1 - landa) * self.joints[arm_index[i + 1]] + landa * self.joints[arm_index[i]]
 
             if i < (n - 2):
-                constraint_return = constraint(self.joints, arm_index, i + 1, self.Theta[arm_index[i]],
-                                               self.target, self.firstPos)
+                constraint_return = constraint(self.joints, arm_index, i + 1, self.Theta[arm_index[i+1]], self.firstPos,self.constraint_type[arm_index[i+1]])
                 if constraint_return[0] == 0:
                     self.joints[arm_index[i]] = pos
                 else:
@@ -119,10 +119,8 @@ class FABRIK:
             # find new joint position
 
             if i < (n - 2):
-                constraint_return_right = constraint(self.joints, self.rightLeg, i + 1, self.Theta[self.rightLeg[i]],
-                                                     self.target, self.firstPos)
-                constraint_return_left = constraint(self.joints, self.leftLeg, i + 1, self.Theta[self.leftLeg[i]],
-                                                    self.target, self.firstPos)
+                constraint_return_right = constraint(self.joints, self.rightLeg, i + 1, self.Theta[self.rightLeg[i+1]], self.firstPos,self.constraint_type[self.rightLeg[i+1]])
+                constraint_return_left = constraint(self.joints, self.leftLeg, i + 1, self.Theta[self.leftLeg[i+1]], self.firstPos,self.constraint_type[self.leftLeg[i+1]])
                 if constraint_return_right[0] == 0:
                     self.joints[self.rightLeg[i]] = pos_right
                 elif constraint_return_right[0] != 0:
@@ -198,10 +196,10 @@ class FABRIK:
                 print("target is out of reach!!!!!!!")
                 return
         for p in range(0, len(self.joints)):
-            for q in range(0, 4):
-                if self.Theta[p][q] >= 2:
-                    print("one of joints limit is out of range!!!")
-                    return
+            # for q in range(0, 4):
+            #     if self.Theta[p][q] >= 2.3:
+            #         print("one of joints limit is out of range!!!")
+            #         return
 
             # target is in reach
             counter = 0
@@ -235,5 +233,5 @@ class FABRIK:
                 counter = counter + 1
                 if counter > 10:
                     break
-        draw(self.joints, self.target, np.loadtxt("length.txt"), self.rightArmIndex, self.leftArmIndex, self.upperChain,
-             self.lowerChain, self.rightLeg, self.leftLeg,self.neck)
+        draw(self.joints, self.target, np.loadtxt("length2.txt"), self.rightArmIndex, self.leftArmIndex, self.upperChain,
+             self.lowerChain, self.rightLeg, self.leftLeg,self.neck,self.head)
