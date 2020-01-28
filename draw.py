@@ -190,13 +190,16 @@ def draw(joints, target, first_pos, rightArmIndex, leftArmIndex, upperChain, low
     # ax.plot3D(x_primeNeck, y_primeNeck, z_primeNeck, color='green')
     # ax.plot3D(x_primeHead, y_primeHead, z_primeHead, color='green')
 
-    FrightUpperArmLength = distance_calculation(joints[1],joints[2])
-    LrightUpperArmLength = distance_calculation(first_pos[1], first_pos[2])
+    FrightUpperArmLength = distance_calculation(joints[0],joints[9])
+    LrightUpperArmLength = distance_calculation(first_pos[0], first_pos[9])
 
-    print('the initial length:',FrightUpperArmLength)
-    print('the final length:', LrightUpperArmLength)
+
     # ax.scatter3D(joints[head[1]][0], joints[head[1]][1], joints[head[1]][2],edgecolors='green')
     ax.scatter3D(target[0], target[1], target[2])
+
+
+
+
     plt.show()
 
 
