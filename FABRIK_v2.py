@@ -1,8 +1,8 @@
 import numpy as np
 from pycg3d.cg3d_point import CG3dPoint
 from pycg3d import utils
-from Constraints import constraint
-from draw import draw
+from Constraints import constraints
+from draw import Draw
 import RebaCalculator
 
 
@@ -35,14 +35,14 @@ class FABRIK:
         self.target = target
 
     def find_target_position(self):
-        right_upper_body = distance_calculation(self.firstPos[0], self.target)
-        left_upper_body = distance_calculation(self.firstPos[0], self.target)
+        right_upper_body = distance_calculation(self.firstPos[4], self.target)
+        left_upper_body = distance_calculation(self.firstPos[8], self.target)
 
         # ON THE RIGHT SIDE OR LEFT relative to base point
         if right_upper_body <= left_upper_body:
-            return "left"
-        if right_upper_body > left_upper_body:
             return "right"
+        if right_upper_body > left_upper_body:
+            return "left"
 
     def forward_arm(self, arm_index):
         # set end effector as target
@@ -120,11 +120,11 @@ class FABRIK:
             landa = distance_calculation(self.firstPos[arm_index[i]], self.firstPos[arm_index[i - 1]]) / r
             # find new joint position
             pos = (1 - landa) * self.joints[arm_index[i - 1]] + landa * self.joints[arm_index[i]]
-            # self.joints[arm_index[i]] = pos
-            if i < (n):
-                constraint_return = constraint(self.joints, arm_index, i - 1, self.Theta[arm_index[i - 1]],
-                                               self.firstPos,
-                                               self.constraint_type[arm_index[i - 1]])
+            if i < n:
+                constraint_obj = constraints(self.joints, arm_index, i - 1, self.Theta[arm_index[i - 1]],
+                                             self.firstPos,
+                                             self.constraint_type[arm_index[i - 1]])
+                constraint_return = constraint_obj.joint_location_calculator()
                 if constraint_return[0] == 0:
                     self.joints[arm_index[i]] = pos
                 else:
@@ -146,8 +146,6 @@ class FABRIK:
             landa = distance_calculation(self.firstPos[self.rightLeg[i]], self.firstPos[self.rightLeg[i - 1]]) / r
             # find new joint position
             pos = (1 - landa) * self.joints[self.rightLeg[i - 1]] + landa * self.joints[self.rightLeg[i]]
-
-
 
             self.joints[self.rightLeg[i]] = pos
             # for left leg
@@ -188,11 +186,6 @@ class FABRIK:
                 print("target is out of reach!!!!!!!")
                 return
 
-            # for q in range(0, 4):
-            #     if self.Theta[p][q] >= 2.3:
-            #         print("one of joints limit is out of range!!!")
-            #         return
-
             # target is in reach
         counter = 0
         if target_pos == "right":
@@ -228,6 +221,7 @@ class FABRIK:
 
         final_reba_score = RebaCalculator.__init__(self.joints)
         print('the final Reba Score:', final_reba_score)
-        draw(self.joints, self.target, np.loadtxt("length2.txt"), self.rightArmIndex, self.leftArmIndex,
+        draw_obj = Draw(self.joints, self.target, np.loadtxt("length2.txt"), self.rightArmIndex, self.leftArmIndex,
              self.upperChain,
              self.lowerChain, self.rightLeg, self.leftLeg, self.neck, self.head)
+        draw_obj.draw_final()

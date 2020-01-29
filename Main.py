@@ -3,7 +3,7 @@ import numpy as np
 import RebaCalculator
 
 
-targetPosition = [-0.62, 0.551, 0.52]
+targetPosition = [0.62, -0.95, 0.52]
 
 constraint_type = ["ballAndSocket", "ballAndSocket", "hinge", "ballAndSocket", "endEffector",
                    "ballAndSocket","hinge", "ballAndSocket", "endEffector",
