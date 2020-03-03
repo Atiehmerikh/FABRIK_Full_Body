@@ -1,9 +1,8 @@
 import FABRIK_v2
 import numpy as np
-import RebaCalculator
+import RebaOptimizer
 
-
-targetPosition = [0.62, -0.95, 0.52]
+targetPosition = [0.52, -0.95, 0.52]
 
 constraint_type = ["ballAndSocket", "ballAndSocket", "hinge", "ballAndSocket", "endEffector",
                    "ballAndSocket","hinge", "ballAndSocket", "endEffector",
@@ -11,11 +10,9 @@ constraint_type = ["ballAndSocket", "ballAndSocket", "hinge", "ballAndSocket", "
                    "ballAndSocket", "ballAndSocket", "hinge", "ballAndSocket", "ballAndSocket", "ballAndSocket",
                    "ballAndSocket"]
 orientationAngleLimit = 0.5
-initial_reba_score = RebaCalculator.__init__(np.loadtxt("length2.txt"))
-print('the initial Reba Score:', initial_reba_score)
+# initial_reba_score = RebaOptimizer.__init__(np.loadtxt("length1.txt"))
 
-
-manipulator = FABRIK_v2.FABRIK(np.loadtxt("joints2.txt"), targetPosition, orientationAngleLimit,
-                            np.loadtxt("length2.txt"), np.loadtxt("theta-reba.txt"), constraint_type)
+manipulator = FABRIK_v2.FABRIK(np.loadtxt("joints1.txt"), targetPosition, orientationAngleLimit,
+                            np.loadtxt("length1.txt"), np.loadtxt("theta-reba.txt"), constraint_type)
 
 manipulator.solve()

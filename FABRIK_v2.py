@@ -3,7 +3,7 @@ from pycg3d.cg3d_point import CG3dPoint
 from pycg3d import utils
 from Constraints import constraints
 from draw import Draw
-import RebaCalculator
+import RebaOptimizer
 
 
 def distance_calculation(i, j):
@@ -34,7 +34,7 @@ class FABRIK:
         self.tolerance = 0.01
         self.target = target
 
-    def find_target_position(self):
+    def laterality(self):
         right_upper_body = distance_calculation(self.firstPos[4], self.target)
         left_upper_body = distance_calculation(self.firstPos[8], self.target)
 
@@ -120,18 +120,19 @@ class FABRIK:
             landa = distance_calculation(self.firstPos[arm_index[i]], self.firstPos[arm_index[i - 1]]) / r
             # find new joint position
             pos = (1 - landa) * self.joints[arm_index[i - 1]] + landa * self.joints[arm_index[i]]
-            if i < n:
-                constraint_obj = constraints(self.joints, arm_index, i - 1, self.Theta[arm_index[i - 1]],
-                                             self.firstPos,
-                                             self.constraint_type[arm_index[i - 1]])
-                constraint_return = constraint_obj.joint_location_calculator()
-                if constraint_return[0] == 0:
-                    self.joints[arm_index[i]] = pos
-                else:
-                    for j in range(3):
-                        self.joints[arm_index[i]][j] = constraint_return[j]
-            else:
-                self.joints[arm_index[i]] = pos
+            # if i < n:
+            #     # constraint_obj = constraints(self.joints, arm_index, i - 1, self.Theta[arm_index[i - 1]],
+            #                                  self.firstPos,
+            #                                  self.constraint_type[arm_index[i - 1]])
+            #     constraint_return = constraint_obj.joint_location_calculator()
+            #     if constraint_return[0] == 0:
+            #         self.joints[arm_index[i]] = pos
+            #     else:
+            #         for j in range(3):
+            #             self.joints[arm_index[i]][j] = constraint_return[j]
+            # else:
+            #     self.joints[arm_index[i]] = pos
+            self.joints[arm_index[i]] = pos
 
     def backward_leg(self):
         # set root as initial position
@@ -157,7 +158,7 @@ class FABRIK:
 
     def solve(self):
         sum_l = 0
-        target_pos = self.find_target_position()
+        target_pos = self.laterality()
         if target_pos == "right":
             # arm length
             for i in range(len(self.rightArmIndex) - 1):
@@ -219,9 +220,8 @@ class FABRIK:
             if counter > 10:
                 break
 
-        final_reba_score = RebaCalculator.__init__(self.joints)
-        print('the final Reba Score:', final_reba_score)
-        draw_obj = Draw(self.joints, self.target, np.loadtxt("length2.txt"), self.rightArmIndex, self.leftArmIndex,
-             self.upperChain,
-             self.lowerChain, self.rightLeg, self.leftLeg, self.neck, self.head)
+        RebaOptimizer.__init__(self.joints)
+        draw_obj = Draw(self.joints, self.target, np.loadtxt("length1.txt"), self.rightArmIndex, self.leftArmIndex,
+                        self.upperChain,
+                        self.lowerChain, self.rightLeg, self.leftLeg, self.neck, self.head)
         draw_obj.draw_final()

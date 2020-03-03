@@ -1,13 +1,16 @@
 # Step two : Arm and wrist analysis
-from RebaCalculator.neck_score import neck_score
-from RebaCalculator.trunck_score import trunk_score
-from RebaCalculator.leg_score import leg_score
-from RebaCalculator.upper_arm_score import upper_arm_score
-from RebaCalculator.lower_arm_score import lower_arm_score
-from RebaCalculator.wrist_score import wrist_score
+from RebaOptimizer.neck_score import neck_score
+from RebaOptimizer.trunck_score import trunk_score
+from RebaOptimizer.leg_score import leg_score
+from RebaOptimizer.upper_arm_score import upper_arm_score
+from RebaOptimizer.lower_arm_score import lower_arm_score
+from RebaOptimizer.wrist_score import wrist_score
+import numpy as np
 
 
 def __init__(joints):
+    # Step two : Arm and wrist analysis
+
     table_a = {1: [[1, 2, 3, 4],
                    [2, 3, 4, 5],
                    [2, 4, 5, 6],
@@ -50,41 +53,53 @@ def __init__(joints):
                [11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12],
                [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]]
 
+    file = open("body_angle_value_IK.txt", "w")
+    # for i in range(1, 2):
+    #     joints = np.loadtxt("joints" + str(i) + ".txt")
     # step1: locate neck position
-    neck = neck_score(joints)
+    neck = neck_score(joints, file)
     # step2: locate trunck posture
-    trunk = trunk_score(joints)
+    trunk = trunk_score(joints, file)
     # step3: locate legs
-    leg = leg_score(joints)
+    leg = leg_score(joints, file)
     # step 4: Look up score in table _A
     posture_score_A = table_a[neck][trunk - 1][leg - 1]
     # step 5: load score
     # load = input("what is the load(in lbs) ")
-    load = 0
-    if (11 <= int(load) < 22):
+    load = 10
+    if 11 <= int(load) < 22:
         posture_score_A = posture_score_A + 1
-    if (22 <= int(load)):
+    if 22 <= int(load):
         posture_score_A = posture_score_A + 2
     # step 7: upper arm score
-    upper_arm = upper_arm_score(joints)
+    upper_arm = upper_arm_score(joints, file)
     # step 8: lower arm score
-    lower_arm = lower_arm_score(joints)
+    lower_arm = lower_arm_score(joints, file)
     # step 9: lower arm score
-    wrist = wrist_score(joints)
+    wrist = wrist_score(joints, file)
     # step 10: Look up score in table _B
     posture_score_B = table_b[lower_arm][upper_arm - 1][wrist - 1]
     # step 11: coupling score
-    # coupling = input("what is the coupling condition?(good(0) or fair(1) or poor(2) or unacceptable(3)? ")
     coupling = 0
+    # coupling = input("what is the coupling condition?(good(0) or fair(1) or poor(2) or unacceptable(3)? ")
     posture_score_B = posture_score_B + int(coupling)
     # step 12: look up score in table C
     posture_score_C = table_c[posture_score_A - 1][posture_score_B - 1]
     # step 13: Activity score
+    activity = 'static'
     # activity = input("what is activity level?(static or repeated(small action more than 4 min) or rapid or none?")
-    activity ='static'
-    if (activity == 'static' or activity == 'repeated' or activity == 'rapid'):
+    if activity == 'static' or activity == 'repeated' or activity == 'rapid':
         posture_score_C = posture_score_C + 1
-    return posture_score_C
+    file.write(str(posture_score_C) + '\n')
+
+    print("neck score: ", neck)
+    print("trunk score: ", trunk)
+    print("Legs score: ", leg)
+    print("upper arm score: ", upper_arm)
+    print("lower arm score: ", lower_arm)
+    print("wrist score: ", wrist)
+
+    print("Reba score is: ", posture_score_C)
 
 
-
+    file.close()
