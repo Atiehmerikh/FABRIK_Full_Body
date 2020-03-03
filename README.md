@@ -1,2 +1,2 @@
 # FABRIK_python
-Exercise to be familiar with FABRIK
+solving Inverse kinematic of whole human body chain with FABRIK
