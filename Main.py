@@ -14,7 +14,7 @@ constraint_type = ["ballAndSocket", "ballAndSocket", "hinge", "ballAndSocket", "
                    "ballAndSocket", "endEffector"]
 
 # rotational angle limit of each joint in degree
-rotationAngleLimit = 60
+rotationAngleLimit = 40
 
 manipulator = FABRIK_IK.FABRIK(np.loadtxt("joints_position.txt"), np.loadtxt("orientation.txt"), targetPosition,
                                targetOrientation,
