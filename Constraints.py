@@ -293,27 +293,3 @@ class constraints:
         x_nearest_point = result[0]
         y_nearest_point = result[1]
         return np.array([x_nearest_point, y_nearest_point])
-# def func_nearest_point(self, x, a, b, x_t, y_t):
-#     a4 = -(b ** 2) * ((a ** 2) - (b ** 2)) / (a ** 2)
-#     a3 = 2 * (b ** 2) * x_t * ((a ** 2) - (b ** 2))
-#     a2 = -(b ** 2) * (a ** 2) * (x_t ** 2) + (b ** 2) * ((a ** 2) - (b ** 2)) ** 2 - (b ** 4) * (y_t ** 2)
-#     a1 = -2 * (a ** 2) * (b ** 2) * x_t * ((a ** 2) - (b ** 2))
-#     a0 = (a ** 4) * (b ** 2) * (x_t ** 2)
-#     return a4 * x * x * x * x + a3 * x * x * x + a2 * x * x + a1 * x + a0
-#
-# def derivative_func_nearest_point(self, x, a, b, x_t, y_t):
-#     a4 = -(b ** 2) * ((a ** 2) - (b ** 2)) / (a ** 2)
-#     a3 = 2 * (b ** 2) * x_t * ((a ** 2) - (b ** 2))
-#     a2 = -(b ** 2) * (a ** 2) * (x_t ** 2) + (b ** 2) * ((a ** 2) - (b ** 2)) ** 2 - (b ** 4) * (y_t ** 2)
-#     a1 = -2 * (a ** 2) * (b ** 2) * x_t * ((a ** 2) - (b ** 2))
-#     return 4 * a4 * x * x * x + 3 * a3 * x * x + 2 * a2 * x + a1
-#
-# # Function to find the root
-#
-# def newton_Raphson_nearest_point(self, x, y, a, b, x_t, y_t):
-#     h = self.func_nearest_point(x, a, b, x_t, y_t) / self.derivative_func_nearest_point(x, a, b, x_t, y_t)
-#     counter = 0
-#     while (abs(h) >= 0.0001):
-#         h = self.func_nearest_point(x, a, b, x_t, y_t) / self.derivative_func_nearest_point(x, a, b, x_t, y_t)
-#         x = x - h
-#     return x
