@@ -4,6 +4,7 @@ from pycg3d.cg3d_point import CG3dPoint
 from pycg3d import utils
 from Constraints import constraints
 from draw import Draw
+import angle_calculator as angleCalculator
 
 
 # This is solver of Inverse kinematic of a whole chain of human body with foot on the ground
@@ -221,6 +222,7 @@ class FABRIK:
 
             # target is in reach
         ##########################################################################
+
         while dif > self.tolerance:
             if target_pos == "right":
                 self.forward_arm(self.rightArmIndex, self.target, self.targetOrientation)
@@ -246,6 +248,9 @@ class FABRIK:
             if counter > 10:
                 break
 
+        f = open("angles.txt", "w")
+        m_angle = angleCalculator.AngleCalculator(f,self.joints)
+        m_angle.calculate()
         draw_obj = Draw(self.joints, self.target, np.loadtxt("joints_position_fixed.txt"), self.rightArmIndex,
                         self.leftArmIndex,
                         self.upperChain,
