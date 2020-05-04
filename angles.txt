@@ -7,7 +7,7 @@ Neck twist
 Trunk bending 
 49.36689365352312
 Trunk side bending 
-4.737225326319954
+7.612814987162837
 Trunk twist 
 0
 Upper right leg flexion 

@@ -15,7 +15,7 @@ class body_part_number:
         return [0, 9, 19, 10]
 
     def trunk_whole_body(self):
-        return [9, 10, 17, 19]
+        return [9, 10, 17, 0]
 
     def right_leg(self):
         return [9, 11, 12, 13]
