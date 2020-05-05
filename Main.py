@@ -1,7 +1,7 @@
 import FABRIK_IK
 import numpy as np
 
-targetPosition = [-0.45, 0.1, 0.7]
+targetPosition = [-0.45, 0.5, 0.7]
 targetOrientation = [0.71, 0, 0, 0.71]
 
 # constraint of each joint
