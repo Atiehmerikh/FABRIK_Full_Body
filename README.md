@@ -3,11 +3,11 @@
 
 # Description:
 
-	This library is an implementation of the FABRIK method(Forward And Backward Reaching Inverse kinematic) 
-	for whole human body in the Python programming language. and is released under the MIT software license 
-	and is under developement. It can simulate the human behavior in reaching a target with consideration of 
-	the human joints constraints.
-	NOTE: This library is under developement so there is some update in future.
+This library is an implementation of the FABRIK method(Forward And Backward Reaching Inverse kinematic) 
+for whole human body in the Python programming language. and is released under the MIT software license 
+and is under developement. It can simulate the human behavior in reaching a target with consideration of 
+the human joints constraints.
+NOTE: This library is under developement so there is some update in future.
 
 # Install 
 You can install the `fabrik` library using the following command:
