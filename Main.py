@@ -3,7 +3,7 @@ import numpy as np
 
 
 def main():
-    target_position = [-0.45, 0.4, 0.7]
+    target_position = [-0.45, 0.4, 0.6]
     target_orientation = [0.71, 0, 0, 0.71]
     clone_joints_position()
     with open('constraint_type.txt') as f:

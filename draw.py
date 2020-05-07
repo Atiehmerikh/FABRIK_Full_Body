@@ -1,8 +1,7 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d, Axes3D
-from pycg3d.cg3d_point import CG3dPoint
-from pycg3d import utils
 import numpy as np
+import Util as Util
 
 
 class Draw:
@@ -147,7 +146,7 @@ class Draw:
         plt.show()
 
     def distance_calculation(i, j):
-        i_point = CG3dPoint(i[0], i[1], i[2])
-        j_point = CG3dPoint(j[0], j[1], j[2])
+        i_point = [i[0], i[1], i[2]]
+        j_point = [j[0], j[1], j[2]]
 
-        return utils.distance(i_point, j_point)
+        return Util.distance(i_point, j_point)
