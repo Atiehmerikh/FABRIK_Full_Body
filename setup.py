@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="fabrik",
-    version="1.1.0",
+    version="1.2.0",
     author="Example Author",
     author_email="atieh.merikh.nejadasl@vub.be",
     description="It is an implementation of the FABRIK‌ method",
