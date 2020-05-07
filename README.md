@@ -18,6 +18,7 @@ You can install the `fabrik` library using the following command:
 To use the code you should specify some values in text files:
 First you should consider the numbering in "body_number.jpg" file and rest of input files
 are based on these numbering
+
 	1- "joits_position.txt" : This is the initial position of the joints
 	2- "joints_constraint.txt": This is the constraints for each human body joints according
 		to the joint reference plane and coordinate
@@ -44,9 +45,9 @@ The FABRIK algorithm is explained in the following research paper:
 
 ## TODO
 
-1- solve the algorihm for joints constraint which makes parabolic section in joints reference plane
-2- target locating on the line of kinematic chain
-3- Handling If the target is unreachable i.e. if the distance between the root and the target is less than the length of the kinematic chain.
-4- multiple end effector
-5- the human feet be able to move
+  1- solve the algorihm for joints constraint which makes parabolic section in joints reference plane
+  2- target locating on the line of kinematic chain
+  3- Handling If the target is unreachable i.e. if the distance between the root and the target is less than the length of the kinematic chain.
+  4- multiple end effector
+  5- the human feet be able to move
 	
