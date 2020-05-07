@@ -11,6 +11,7 @@
 
 # Install 
 You can install the `fabrik` library using the following command:
+
 	pip3 install git+https://github.com/Atiehmerikh/FABRIK_python.git
 ## Usage:
 	
