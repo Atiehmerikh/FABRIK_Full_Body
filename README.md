@@ -44,7 +44,7 @@ manipulator.solve()
 
 ## OutPut:
 
-Output is a text file (`angles.txt`) which computed joint angles and also the final position in stick diagram.
+Output is a text file (`output/angles.txt`) which computed joint angles and also the final position in stick diagram.
 
 ## References:
 
