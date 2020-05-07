@@ -28,8 +28,9 @@ are based on these numbering
 
 After creating these files inside the `input` folder (see `test` folder) and creating `output` folder (it should be empty first), you can test the FABRIK method like the following:
 
-```(python)
+```python
 from fabrik import fabrik, input_reader
+
 reader = input_reader.InputReader()
 manipulator = fabrik.FABRIK(reader.joints(),
                             reader.initial_joints_position(), 
