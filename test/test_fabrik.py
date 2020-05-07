@@ -1,4 +1,3 @@
-import numpy as np
 import sys
 sys.path.append('..')
 from fabrik import fabrik, input_reader
@@ -16,9 +15,7 @@ def main():
                          reader.constraint_type(),
                          reader.bone_orientation_limit())
 
-    print(manipulator.laterality())
     manipulator.solve()
-    pass
     
 
 if __name__ == "__main__":
