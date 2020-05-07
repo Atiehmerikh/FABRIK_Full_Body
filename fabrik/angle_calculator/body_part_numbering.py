@@ -1,4 +1,4 @@
-class body_part_number:
+class BodyPartNumber:
     def neck(self):
         return [17, 18]
 

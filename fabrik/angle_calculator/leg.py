@@ -1,6 +1,6 @@
 import numpy as np
 import math
-import angle_calculator.body_part_numbering as bodyNum
+import fabrik.angle_calculator.body_part_numbering as bodyNum
 
 
 class Leg:
@@ -9,7 +9,7 @@ class Leg:
         self.file = file
 
     def leg_degree(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         right_leg_joint_numbers = m_body_number.right_leg()
         left_leg_joint_numbers = m_body_number.left_leg()
         right_knee_hip_vector = self.joints[right_leg_joint_numbers[0]] - self.joints[right_leg_joint_numbers[1]]

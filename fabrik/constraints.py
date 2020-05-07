@@ -1,9 +1,9 @@
 import math
 import numpy as np
-import Util as Util
+import fabrik.util as util
 
 
-class constraints:
+class Constraints:
 
     def __init__(self, joints, body_index, i, theta, length, constraint_type, orientation):
         self.joints = joints
@@ -32,7 +32,7 @@ class constraints:
         s = dot_prod
 
         # a unit vector of a line passing  from p(i+1) and P(i)
-        l_next_i = Util.distance(p_next, p_i)
+        l_next_i = util.distance(p_next, p_i)
         unit_vec_next_i = [(p_i[0] - p_next[0]) / l_next_i,
                            (p_i[1] - p_next[1]) / l_next_i,
                            (p_i[2] - p_next[2]) / l_next_i]
@@ -47,7 +47,7 @@ class constraints:
             l = math.sqrt(np.inner(normal_plane, normal_plane))
             uv_normal_plane = [normal_plane[0] / l, normal_plane[1] / l, normal_plane[2] / l]
             # a vector from p_i to o
-            l_i__o = Util.distance(p_i, o)
+            l_i__o = util.distance(p_i, o)
             unit_vec_i_o = [(o[0] - p_i[0]) / l_i__o,
                             (o[1] - p_i[1]) / l_i__o,
                             (o[2] - p_i[2]) / l_i__o]
@@ -61,7 +61,7 @@ class constraints:
             p_up = self.times(self.rotation_matrix(axis_normal_plane, -self.theta[3]), unit_vec_i_o_array)
             p_up = [p_up[0], p_up[1], p_up[2]]
 
-            l_before_i = Util.distance(p_i, p_before)
+            l_before_i = util.distance(p_i, p_before)
             uv_i_before = [(p_before[0] - p_i[0]) / l_before_i, (p_before[1] - p_i[1]) / l_before_i,
                            (p_before[2] - p_i[2]) / l_before_i]
 
@@ -103,7 +103,7 @@ class constraints:
             q4 = round(s * math.tan(self.theta[3]), 3)
 
             # change the coordinate to cross section of cone and calculating the (i-1)th position in it
-            l_o_next = Util.distance(o, p_next)
+            l_o_next = util.distance(o, p_next)
 
             if 0 <= round(self.si) < np.pi / 2:
                 sector = 1

@@ -1,9 +1,9 @@
-import angle_calculator.neck as neck
-import angle_calculator.trunck as trunk
-import angle_calculator.leg as leg
-import angle_calculator.upper_arm as upperArm
-import angle_calculator.lower_arm as lowerArm
-import angle_calculator.wrist as wrist
+import fabrik.angle_calculator.neck as neck
+import fabrik.angle_calculator.trunck as trunk
+import fabrik.angle_calculator.leg as leg
+import fabrik.angle_calculator.upper_arm as upperArm
+import fabrik.angle_calculator.lower_arm as lowerArm
+import fabrik.angle_calculator.wrist as wrist
 
 
 class AngleCalculator:

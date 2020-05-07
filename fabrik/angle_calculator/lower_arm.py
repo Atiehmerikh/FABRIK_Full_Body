@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import angle_calculator.body_part_numbering as bodyNum
+import fabrik.angle_calculator.body_part_numbering as bodyNum
 
 
 class LowerArm:
@@ -9,7 +9,7 @@ class LowerArm:
         self.joints = joints
 
     def lower_arm_degree(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         right_arm_joint_numbers = m_body_number.right_arm()
         left_arm_joint_numbers = m_body_number.left_arm()
 

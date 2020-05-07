@@ -1,6 +1,6 @@
 import numpy as np
 import math
-import angle_calculator.body_part_numbering as bodyNum
+import fabrik.angle_calculator.body_part_numbering as bodyNum
 
 
 class Trunk:
@@ -9,7 +9,7 @@ class Trunk:
         self.file = file
 
     def trunk_plane(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         trunk_joint_numbers = m_body_number.trunk_whole_body()
 
         # finding a plane of upper body
@@ -32,7 +32,7 @@ class Trunk:
         self.file.write("\n")
 
     def trunk_side_calculator(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         trunk_joint_numbers = m_body_number.trunk_whole_body()
 
         normal_plane_xz = np.array([0, 1, 0])

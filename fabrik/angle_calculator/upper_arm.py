@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import angle_calculator.body_part_numbering as bodyNum
+import fabrik.angle_calculator.body_part_numbering as bodyNum
 
 
 class UpperArm:
@@ -9,7 +9,7 @@ class UpperArm:
         self.file = file
 
     def trunk_plane(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         trunk_joint_numbers = m_body_number.trunk_upper_body()
 
         # finding a plane of upper body
@@ -20,7 +20,7 @@ class UpperArm:
         return normal_plane
 
     def upper_arm_flex(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         right_upper_arm_joint_numbers = m_body_number.right_arm()
         left_upper_arm_joint_numbers = m_body_number.left_arm()
 
@@ -55,7 +55,7 @@ class UpperArm:
         self.file.write("\n")
 
     def upper_arm_side_bending(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         right_upper_arm_joint_numbers = m_body_number.right_arm()
         left_upper_arm_joint_numbers = m_body_number.left_arm()
 
@@ -99,7 +99,7 @@ class UpperArm:
         self.file.write("\n")
 
     def shoulder_rise(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         trunk_joint_numbers = m_body_number.trunk_upper_body()
         right_shoulder_joint_numbers = m_body_number.right_shoulder()
         left_shoulder_joint_numbers = m_body_number.left_shoulder()

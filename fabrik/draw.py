@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d, Axes3D
 import numpy as np
-import Util as Util
+import fabrik.util as util
 
 
 class Draw:
@@ -144,9 +144,3 @@ class Draw:
         #
         self.set_axes_equal(ax)
         plt.show()
-
-    def distance_calculation(i, j):
-        i_point = [i[0], i[1], i[2]]
-        j_point = [j[0], j[1], j[2]]
-
-        return Util.distance(i_point, j_point)

@@ -1,11 +1,11 @@
 import numpy as np
 import math
-from Constraints import constraints
-from draw import Draw
-import angle_calculator as angleCalculator
-import Util as Util
-
-
+from fabrik.constraints import Constraints
+from fabrik.draw import Draw
+from fabrik.angle_calculator.angle_calculator import AngleCalculator
+import fabrik.util as util
+from fabrik.input_reader import *
+from fabrik.output_writer import *
 # This is solver of Inverse kinematic of a whole chain of human body with foot on the ground
 # For more info about the procedure refer to https://www.sciencedirect.com/science/article/pii/S1524070311000178
 # and for the constraints refer to https://www.researchgate.net/publication/271771862_Extending_FABRIK_with_model_constraints
@@ -43,8 +43,11 @@ class FABRIK:
 
     # Finding the laterality of the human whole chain
     def laterality(self):
-        right_upper_body = Util.distance(self.firstPos[self.right_end_effector_index], self.target)
-        left_upper_body = Util.distance(self.firstPos[self.left_end_effector_index], self.target)
+        """
+        Determines right-handed or left-handed person
+        """
+        right_upper_body = util.distance(self.firstPos[self.right_end_effector_index], self.target)
+        left_upper_body = util.distance(self.firstPos[self.left_end_effector_index], self.target)
 
         # ON THE RIGHT SIDE OR LEFT relative to how close to end effectors
         if right_upper_body <= left_upper_body:
@@ -54,8 +57,8 @@ class FABRIK:
 
     # Finding the next point position in forward/backward iteration of FABRIK
     def solve_for_distance(self, i, j, body_part):
-        r = Util.distance(self.joints[body_part[i]], self.joints[body_part[j]])
-        landa = Util.distance(self.firstPos[body_part[i]], self.firstPos[body_part[j]]) / r
+        r = util.distance(self.joints[body_part[i]], self.joints[body_part[j]])
+        landa = util.distance(self.firstPos[body_part[i]], self.firstPos[body_part[j]]) / r
         pos = (1 - landa) * self.joints[body_part[i]] + landa * self.joints[body_part[j]]
         self.joints[body_part[j]] = pos
 
@@ -116,7 +119,7 @@ class FABRIK:
             self.solve_for_distance(i + 1, i, arm_index)
             self.solve_for_orientation(i + 1, i, arm_index)
             if i < n - 2:
-                mconstraint = constraints(self.joints, arm_index, i + 1, self.Theta[arm_index[i + 1]], self.firstPos,
+                mconstraint = Constraints(self.joints, arm_index, i + 1, self.Theta[arm_index[i + 1]], self.firstPos,
                                           self.constraint_type[arm_index[i + 1]], self.orientation[arm_index[i + 1]])
                 constraint_return = mconstraint.rotational_constraint()
                 if constraint_return[0] != 0:
@@ -174,7 +177,7 @@ class FABRIK:
             self.solve_for_orientation(i + 1, i, self.rightLeg)
             self.solve_for_orientation(i + 1, i, self.leftLeg)
             if i < n - 2:
-                mconstraint = constraints(self.joints, self.rightLeg, i + 1, self.Theta[self.rightLeg[i + 1]],
+                mconstraint = Constraints(self.joints, self.rightLeg, i + 1, self.Theta[self.rightLeg[i + 1]],
                                           self.firstPos,
                                           self.constraint_type[self.rightLeg[i + 1]],
                                           self.orientation[self.rightLeg[i + 1]])
@@ -183,7 +186,7 @@ class FABRIK:
                     for j in range(3):
                         self.joints[self.rightLeg[i]][j] = constraint_return[j]
 
-                mconstraint = constraints(self.joints, self.leftLeg, i + 1, self.Theta[self.leftLeg[i + 1]],
+                mconstraint = Constraints(self.joints, self.leftLeg, i + 1, self.Theta[self.leftLeg[i + 1]],
                                           self.firstPos,
                                           self.constraint_type[self.leftLeg[i + 1]],
                                           self.orientation[self.leftLeg[i + 1]])
@@ -221,37 +224,37 @@ class FABRIK:
         if target_pos == "right":
             # arm length
             for i in range(len(self.rightArmIndex) - 1):
-                sum_l = sum_l + Util.distance(self.firstPos[self.rightArmIndex[i]],
+                sum_l = sum_l + util.distance(self.firstPos[self.rightArmIndex[i]],
                                               self.firstPos[self.rightArmIndex[i + 1]])
             # chain length
-            sum_l = sum_l + Util.distance(self.firstPos[0], self.firstPos[self.rightLeg[len(self.rightLeg) - 1]])
+            sum_l = sum_l + util.distance(self.firstPos[0], self.firstPos[self.rightLeg[len(self.rightLeg) - 1]])
             # Leg length
             for i in range(len(self.rightLeg) - 1):
-                sum_l = sum_l + Util.distance(self.firstPos[self.rightLeg[i]],
+                sum_l = sum_l + util.distance(self.firstPos[self.rightLeg[i]],
                                               self.firstPos[self.rightLeg[i + 1]])
-            if sum_l < Util.distance(self.firstPos[self.rightLeg[0]], self.target):
+            if sum_l < util.distance(self.firstPos[self.rightLeg[0]], self.target):
                 print("target is out of reach!!!!!!!")
                 return
             else:
                 n = len(self.rightArmIndex)
-                dif = Util.distance(self.joints[self.rightArmIndex[n - 1]], self.target)
+                dif = util.distance(self.joints[self.rightArmIndex[n - 1]], self.target)
 
         else:
             # arm length
             for i in range(len(self.leftArmIndex) - 1):
-                sum_l = sum_l + Util.distance(self.firstPos[self.leftArmIndex[i]],
+                sum_l = sum_l + util.distance(self.firstPos[self.leftArmIndex[i]],
                                               self.firstPos[self.leftArmIndex[i + 1]])
             # chain length
-            sum_l = sum_l + Util.distance(self.firstPos[0], self.firstPos[self.leftLeg[len(self.leftLeg) - 1]])
+            sum_l = sum_l + util.distance(self.firstPos[0], self.firstPos[self.leftLeg[len(self.leftLeg) - 1]])
             # Leg length
             for i in range(len(self.leftLeg) - 1):
-                sum_l = sum_l + Util.distance(self.firstPos[self.leftLeg[i]], self.firstPos[self.leftLeg[i + 1]])
-            if sum_l < Util.distance(self.firstPos[self.leftLeg[0]], self.target):
+                sum_l = sum_l + util.distance(self.firstPos[self.leftLeg[i]], self.firstPos[self.leftLeg[i + 1]])
+            if sum_l < util.distance(self.firstPos[self.leftLeg[0]], self.target):
                 print("target is out of reach!!!!!!!")
                 return
             else:
                 n = len(self.leftArmIndex)
-                dif = Util.distance(self.joints[self.leftArmIndex[n - 1]], self.target)
+                dif = util.distance(self.joints[self.leftArmIndex[n - 1]], self.target)
 
             # target is in reach
         ##########################################################################
@@ -274,17 +277,16 @@ class FABRIK:
                 self.backward_arm(self.leftArmIndex)
 
             if target_pos == "right":
-                dif = Util.distance(self.joints[self.rightArmIndex[n - 1]], self.target)
+                dif = util.distance(self.joints[self.rightArmIndex[n - 1]], self.target)
             else:
-                dif = Util.distance(self.joints[self.leftArmIndex[n - 1]], self.target)
+                dif = util.distance(self.joints[self.leftArmIndex[n - 1]], self.target)
             counter = counter + 1
             if counter > 10:
                 break
 
-        f = open("angles.txt", "w")
-        m_angle = angleCalculator.AngleCalculator(f, self.joints)
+        m_angle = AngleCalculator(OutputWriter().angle_writer(), self.joints)
         m_angle.calculate()
-        draw_obj = Draw(self.joints, self.target, np.loadtxt("joints_position_fixed.txt"), self.rightArmIndex,
+        draw_obj = Draw(self.joints, self.target, InputReader().initial_joints_position(), self.rightArmIndex,
                         self.leftArmIndex,
                         self.upperChain,
                         self.lowerChain, self.rightLeg, self.leftLeg, self.neck, self.head)

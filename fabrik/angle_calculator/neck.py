@@ -1,6 +1,6 @@
 import numpy as np
 import math
-import angle_calculator.body_part_numbering as bodyNum
+import fabrik.angle_calculator.body_part_numbering as bodyNum
 
 
 class Neck:
@@ -9,7 +9,7 @@ class Neck:
         self.file = file
 
     def trunk_plane(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         trunk_joint_numbers = m_body_number.trunk_upper_body()
 
         # finding a plane of upper body
@@ -20,7 +20,7 @@ class Neck:
         return normal_plane
 
     def neck_flex_calculator(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         neck_joint_numbers = m_body_number.neck()
         normal_plane = self.trunk_plane()
         neck_vector = self.joints[neck_joint_numbers[1]] - self.joints[neck_joint_numbers[0]]
@@ -33,7 +33,7 @@ class Neck:
         self.file.write("\n")
 
     def neck_side_calculator(self):
-        m_body_number = bodyNum.body_part_number()
+        m_body_number = bodyNum.BodyPartNumber()
         neck_joint_numbers = m_body_number.neck()
         trunk_joint_numbers = m_body_number.trunk_upper_body()
 

@@ -1,6 +1,6 @@
 import numpy as np
 import math
-import angle_calculator.body_part_numbering as bodyNum
+import fabrik.angle_calculator.body_part_numbering as bodyNum
 
 
 class Wrist:
@@ -9,7 +9,7 @@ class Wrist:
         self.file = file
 
     def wrist_flex(self):
-        m_body = bodyNum.body_part_number()
+        m_body = bodyNum.BodyPartNumber()
         right_arm_joint_number = m_body.right_arm()
         left_arm_joint_number = m_body.left_arm()
 
@@ -49,7 +49,7 @@ class Wrist:
         self.file.write("\n")
 
     def wrist_side(self):
-        m_body = bodyNum.body_part_number()
+        m_body = bodyNum.BodyPartNumber()
         right_arm_joint_number = m_body.right_arm()
         left_arm_joint_number = m_body.left_arm()
 

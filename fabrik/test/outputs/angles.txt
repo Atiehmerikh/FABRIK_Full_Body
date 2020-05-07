@@ -1,19 +1,19 @@
 Neck bending 
--27.27623673390059
+-33.60565756379229
 Neck side bending 
-51.645624216064725
+64.52816096675662
 Neck twist 
 0
 Trunk bending 
-60.17427215047153
+70.58344193510233
 Trunk side bending 
-13.883479912835412
+0.7830895002342483
 Trunk twist 
 0
 Upper right leg flexion 
-49.09517305345744
+49.06081776159605
 Upper left leg flexion 
-50.60708692641889
+35.079239591072614
 Upper right leg abduction 
 0
 Upper left leg abduction 
@@ -39,33 +39,33 @@ Upper right leg rotation
 Upper left leg rotation 
 0
 Upper right arm flexion 
-56.35062261968228
+40.48450537405592
 Upper left arm flexion 
-40.122119181280034
+39.13835616725935
 Upper right arm abduction 
--0.1654159422078483
+-0.4802694400513454
 Upper left arm abduction 
--0.4874049783376064
+-0.5557907547240177
 Upper right arm raise 
-90.05889112278633
+89.95017297508849
 Upper left arm raise 
-89.94110887721368
+90.04982702491152
 Upper right arm rotation 
 0
 Upper left arm rotation 
 0
 Lower right arm flexion 
-1347.9812773927856
+1344.9434194890634
 Lower left arm flexion 
-1372.5582850568962
+1377.8077708145888
 Right hand flexion 
-16.06353863051977
+13.311938991770932
 Left hand flexion 
-3.4715410674898886
+4.4427529419241605
 Right hand bending 
--12.631082256112578
+-9.891927820087858
 Left hand bending 
-2.4134770191753745
+3.175391138046166
 Right hand twist 
 0
 Left hand twist 
