@@ -26,6 +26,22 @@ are based on these numbering
 5. `constraint_type.txt`: File for getting the joints constraint ("BALL": for ball and socket) and ("hinge" : for hinge type)
 6. `target.txt`: First line of this file specifies the target position and the second line represents the orientation of the target
 
+After creating these files inside the `input` folder (see `test` folder) and creating `output` folder (it should be empty first), you can test the FABRIK method like the following:
+
+```
+from fabrik import fabrik, input_reader
+reader = input_reader.InputReader()
+manipulator = fabrik.FABRIK(reader.joints(),
+                            reader.initial_joints_position(), 
+                            reader.orientation(), 
+                            reader.target_position(),
+                            reader.target_orientation(), 
+                            reader.joints_constraints(),
+                            reader.constraint_type(),
+                            reader.bone_orientation_limit())
+manipulator.solve()
+```
+
 ## OutPut:
 
 Output is a text file (`angles.txt`) which computed joint angles and also the final position in stick diagram.
