@@ -15,7 +15,7 @@ You can install the `fabrik` library using the following command:
 	pip3 install git+https://github.com/Atiehmerikh/FABRIK_python.git
 ## Usage:
 	
-To use the code you should specify some values in text files:
+To use the code you should specify some values in text files (see `test` folder in the root):
 First you should consider the numbering in `body_number.jpg` file and rest of input files
 are based on these numbering
 
