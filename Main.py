@@ -1,24 +1,28 @@
 import FABRIK_IK
 import numpy as np
 
-targetPosition = [-0.45, 0.5, 0.7]
-targetOrientation = [0.71, 0, 0, 0.71]
 
-# constraint of each joint
+def main():
+    target_position = [-0.45, 0.4, 0.7]
+    target_orientation = [0.71, 0, 0, 0.71]
+    clone_joints_position()
+    with open('constraint_type.txt') as f:
+        constraint_type = [line.rstrip() for line in f]
 
-constraint_type = ["ballAndSocket", "ballAndSocket", "hinge", "ballAndSocket", "endEffector",
-                   "ballAndSocket", "hinge", "ballAndSocket", "endEffector",
-                   "ballAndSocket", "ballAndSocket",
-                   "hinge", "ballAndSocket", "endEffector",
-                   "hinge", "ballAndSocket", "endEffector",
-                   "ballAndSocket", "endEffector"]
+    manipulator = FABRIK_IK.FABRIK(np.loadtxt("joints_position.txt"),np.loadtxt("joints_position_fixed.txt"), np.loadtxt("orientation.txt"), target_position,
+                                   target_orientation, np.loadtxt("joints_constraint.txt"),
+                                   constraint_type,np.loadtxt("bone_orientation_constraints.txt"))
 
-# rotational angle limit of each joint in degree
-rotationAngleLimit = 40
+    manipulator.solve()
 
-manipulator = FABRIK_IK.FABRIK(np.loadtxt("joints_position.txt"), np.loadtxt("orientation.txt"), targetPosition,
-                               targetOrientation,
-                               np.loadtxt("joints_position_fixed.txt"), np.loadtxt("joints_constraint.txt"),
-                               constraint_type, rotationAngleLimit)
 
-manipulator.solve()
+def clone_joints_position():
+    with open("joints_position.txt") as f:
+        with open("joints_position_fixed.txt", "w") as f1:
+            for line in f:
+                f1.write(line)
+
+
+
+if __name__ == "__main__":
+    main()
