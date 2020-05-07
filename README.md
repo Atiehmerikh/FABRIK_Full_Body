@@ -9,6 +9,11 @@
 	the human joints constraints.
 	NOTE: This library is under developement so there is some update in future.
 
+# Install 
+	You can install the `fabrik` library using the following command:
+	```
+	pip3 install git+https://github.com/Atiehmerikh/FABRIK_python.git
+	```
 ## Usage:
 	
 	To use the code you should specify some values in text files:
