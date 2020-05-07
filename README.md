@@ -16,22 +16,15 @@ You can install the `fabrik` library using the following command:
 ## Usage:
 	
 To use the code you should specify some values in text files:
-First you should consider the numbering in "body_number.jpg" file and rest of input files
+First you should consider the numbering in `body_number.jpg` file and rest of input files
 are based on these numbering
 
-	1- "joits_position.txt" : This is the initial position of the joints
-	2- "joints_constraint.txt": This is the constraints for each human body joints according
-		to the joint reference plane and coordinate
-		you should enter four number for each joint (Adduction, Abduction, Flexion, Extension)
-		order of these four number is according to joints orientation in its 
-		reference plane(in degree)
-	3- "orientation.txt" This is the initial orientation of each joint in quaternion
-	4- "bone_twist_constraints.txt" the twist limitation for each bone the limitation
-		for each bone should be based on the outer bone number. 
-		for any one that you don't have data let it be on its default.
-	5- "constraint_type.txt" file for getting the joints constraint 
-		"BALL" :for ball and socket and "hinge" : for hinge type
-	6- specifying target position and orientation in "Main.py"
+1. `joits_position.txt` : This is the initial position of the joints
+2. `joints_constraint.txt`: This is the constraints for each human body joints. According to the joint reference plane and coordinate, you should enter four number for each joint (Adduction, Abduction, Flexion, Extension).Notice that order of these four number is according to joints orientation in its reference plane(in degree).
+3. `orientation.txt`: This is the initial orientation of each joint in quaternion
+4. `bone_twist_constraints.txt`: The twist limitations for each bone. The limitation for each bone should be based on the outer bone number. For anyone that you don't have data let it be on its default.
+5. `constraint_type.txt`: File for getting the joints constraint ("BALL": for ball and socket) and ("hinge" : for hinge type)
+6. `target.txt`: First line of this file specifies the target position and the second line represents the orientation of the target
 
 ## OutPut:
 
