@@ -45,9 +45,9 @@ The FABRIK algorithm is explained in the following research paper:
 
 ## TODO
 
-  1- solve the algorihm for joints constraint which makes parabolic section in joints reference plane
-  2- target locating on the line of kinematic chain
-  3- Handling If the target is unreachable i.e. if the distance between the root and the target is less than the length of the kinematic chain.
-  4- multiple end effector
-  5- the human feet be able to move
+1. solve the algorihm for joints constraint which makes parabolic section in joints reference plane
+2. target locating on the line of kinematic chain
+3. Handling If the target is unreachable i.e. if the distance between the root and the target is less than the length of the kinematic chain.
+4. multiple end effector
+5. the human feet be able to move
 	
