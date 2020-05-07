@@ -11,7 +11,7 @@ def main():
 
     manipulator = FABRIK_IK.FABRIK(np.loadtxt("joints_position.txt"),np.loadtxt("joints_position_fixed.txt"), np.loadtxt("orientation.txt"), target_position,
                                    target_orientation, np.loadtxt("joints_constraint.txt"),
-                                   constraint_type,np.loadtxt("bone_rotation_constraints.txt"))
+                                   constraint_type,np.loadtxt("bone_twist_constraints.txt"))
 
     manipulator.solve()
 
