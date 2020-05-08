@@ -1,5 +1,5 @@
 import numpy as np
-from fabrik.singleton import Singleton
+from fabrik_full_body.singleton import Singleton
 
 class InputReader(metaclass=Singleton):
     def __init__(self, base_address = "./inputs/", 

@@ -1,6 +1,6 @@
 import sys
 sys.path.append('..')
-from fabrik import fabrik, input_reader
+from fabrik_full_body import fabrik, input_reader
 
 
 

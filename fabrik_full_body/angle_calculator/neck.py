@@ -1,6 +1,6 @@
 import numpy as np
 import math
-import fabrik.angle_calculator.body_part_numbering as bodyNum
+import fabrik_full_body.angle_calculator.body_part_numbering as bodyNum
 
 
 class Neck:

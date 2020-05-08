@@ -1,11 +1,11 @@
 import numpy as np
 import math
-from fabrik.constraints import Constraints
-from fabrik.draw import Draw
-from fabrik.angle_calculator.angle_calculator import AngleCalculator
-import fabrik.util as util
-from fabrik.input_reader import *
-from fabrik.output_writer import *
+from fabrik_full_body.constraints import Constraints
+from fabrik_full_body.draw import Draw
+from fabrik_full_body.angle_calculator.angle_calculator import AngleCalculator
+import fabrik_full_body.util as util
+from fabrik_full_body.input_reader import *
+from fabrik_full_body.output_writer import *
 # This is solver of Inverse kinematic of a whole chain of human body with foot on the ground
 # For more info about the procedure refer to https://www.sciencedirect.com/science/article/pii/S1524070311000178
 # and for the constraints refer to https://www.researchgate.net/publication/271771862_Extending_FABRIK_with_model_constraints

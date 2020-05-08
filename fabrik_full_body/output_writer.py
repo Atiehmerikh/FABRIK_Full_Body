@@ -1,4 +1,4 @@
-from fabrik.singleton import Singleton
+from fabrik_full_body.singleton import Singleton
 class OutputWriter(metaclass=Singleton):
     def __init__(self, base_address="./outputs/", angles_file_address = "angles.txt"):
         self.base_address = base_address

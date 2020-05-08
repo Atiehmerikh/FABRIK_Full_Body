@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import fabrik.angle_calculator.body_part_numbering as bodyNum
+import fabrik_full_body.angle_calculator.body_part_numbering as bodyNum
 
 
 class LowerArm:

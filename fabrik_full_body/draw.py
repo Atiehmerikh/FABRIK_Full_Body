@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d, Axes3D
 import numpy as np
-import fabrik.util as util
+import fabrik_full_body.util as util
 
 
 class Draw:

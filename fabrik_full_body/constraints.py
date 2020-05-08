@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import fabrik.util as util
+import fabrik_full_body.util as util
 
 
 class Constraints:
