@@ -3,7 +3,7 @@ Neck bending
 Neck side bending 
 61.28168912784212
 Neck twist 
-0
+00.0
 Trunk bending 
 70.48655847519758
 Trunk side bending 
@@ -67,6 +67,6 @@ Right hand bending
 Left hand bending 
 10.993697986873798
 Right hand twist 
-0
+0.0
 Left hand twist 
-0
+0.0

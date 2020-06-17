@@ -1,11 +1,13 @@
 import numpy as np
 import math
+import fabrik_full_body.util as util
 import fabrik_full_body.angle_calculator.body_part_numbering as bodyNum
 
 
 class Trunk:
-    def __init__(self, joints,file):
+    def __init__(self, joints,orientation,file):
         self.joints = joints
+        self.orientation = orientation
         self.file = file
 
     def trunk_plane(self):
@@ -50,7 +52,16 @@ class Trunk:
         self.file.write("\n")
 
     def trunk_torsion_calculator(self):
-        # TODO: I should calculate the rotation
+        # In here the rotor needed to transfer orientation frame of core joint to neck joint is calculated
+        # this considered as twist
+        m_body_number = bodyNum.BodyPartNumber()
+        trunk_joint_numbers = m_body_number.trunk_whole_body()
+        q1 = self.orientation[trunk_joint_numbers[2]]  # neck
+        q2 = self.orientation[trunk_joint_numbers[3]]  # core
+        # finding the rotor that express rotation between two orientational frame(between outer and inner joint)
+        rotor = util.find_rotation_quaternion(q1, q2)
+        trunk_twist = math.acos(rotor[0]) * 2 * (180 / np.pi)
         self.file.write("Trunk twist \n")
         self.file.write(str(0))
         self.file.write("\n")
+        return trunk_twist

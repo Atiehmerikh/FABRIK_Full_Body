@@ -284,7 +284,7 @@ class FABRIK:
             if counter > 10:
                 break
 
-        m_angle = AngleCalculator(OutputWriter().angle_writer(), self.joints)
+        m_angle = AngleCalculator(OutputWriter().angle_writer(), self.joints,self.orientation)
         m_angle.calculate()
         draw_obj = Draw(self.joints, self.target, InputReader().initial_joints_position(), self.rightArmIndex,
                         self.leftArmIndex,

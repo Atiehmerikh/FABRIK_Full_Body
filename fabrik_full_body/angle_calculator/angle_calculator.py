@@ -7,17 +7,18 @@ import fabrik_full_body.angle_calculator.wrist as wrist
 
 
 class AngleCalculator:
-    def __init__(self,file,joints):
+    def __init__(self,file,joints,orientation):
         self.file = file
         self.joints = joints
+        self.orientation = orientation
 
     def calculate(self):
-        m_neck = neck.Neck(self.joints,self.file)
+        m_neck = neck.Neck(self.joints,self.orientation,self.file)
         m_neck.neck_flex_calculator()
         m_neck.neck_side_calculator()
         m_neck.neck_torsion_calculator()
 
-        m_trunk = trunk.Trunk(self.joints,self.file)
+        m_trunk = trunk.Trunk(self.joints,self.orientation,self.file)
         m_trunk.trunk_flex_calculator()
         m_trunk.trunk_side_calculator()
         m_trunk.trunk_torsion_calculator()
@@ -34,7 +35,7 @@ class AngleCalculator:
         m_LA = lowerArm.LowerArm(self.joints, self.file)
         m_LA.lower_arm_degree()
 
-        m_wrist = wrist.Wrist(self.joints,self.file)
+        m_wrist = wrist.Wrist(self.joints,self.orientation,self.file)
         m_wrist.wrist_flex()
         m_wrist.wrist_side()
         m_wrist.wrist_torsion()

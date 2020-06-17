@@ -1,12 +1,14 @@
 import numpy as np
 import math
+import fabrik_full_body.util as util
 import fabrik_full_body.angle_calculator.body_part_numbering as bodyNum
 
 
 class Wrist:
-    def __init__(self, joints,file):
+    def __init__(self, joints,orientation,file):
         self.joints = joints
         self.file = file
+        self.orientation= orientation
 
     def wrist_flex(self):
         m_body = bodyNum.BodyPartNumber()
@@ -87,14 +89,26 @@ class Wrist:
         self.file.write("\n")
 
     def wrist_torsion(self):
-        # TODO: twist should be considered
-        right_torsion = 0
-        left_torsion = 0
+        m_body_number = bodyNum.BodyPartNumber()
+        right_wrist_joint_numbers = m_body_number.right_arm()
+        q1 = self.orientation[right_wrist_joint_numbers[3]]
+        q2 = self.orientation[right_wrist_joint_numbers[2]]
+        # finding the rotor that express rotation between two orientational frame(between outer and inner joint)
+        rotor = util.find_rotation_quaternion(q1, q2)
+        right_wrist_twist = math.acos(rotor[0]) * 2 * (180 / np.pi)
+
+        m_body_number = bodyNum.BodyPartNumber()
+        left_wrist_joint_numbers = m_body_number.left_arm()
+        q1 = self.orientation[left_wrist_joint_numbers[3]]
+        q2 = self.orientation[left_wrist_joint_numbers[2]]
+        # finding the rotor that express rotation between two orientational frame(between outer and inner joint)
+        rotor = util.find_rotation_quaternion(q1, q2)
+        left_wrist_twist = math.acos(rotor[0]) * 2 * (180 / np.pi)
 
         self.file.write("Right hand twist \n")
-        self.file.write(str(right_torsion))
+        self.file.write(str(right_wrist_twist))
         self.file.write("\n")
 
         self.file.write("Left hand twist \n")
-        self.file.write(str(left_torsion))
+        self.file.write(str(left_wrist_twist))
         self.file.write("\n")
