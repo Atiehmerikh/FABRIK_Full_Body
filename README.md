@@ -53,10 +53,9 @@ The FABRIK algorithm is explained in the following research paper:
 
 	Aristidou, A., & Lasenby, J. (2011). FABRIK: a fast, iterative solver for the inverse kinematics problem. Graphical Models, 73(5), 243-260.
 
-## TODO
-
+##  Future Works
 1. solve the algorihm for joints constraint which makes parabolic section in joints reference plane
-2. target locating on the line of kinematic chain
+2. target locating on the line of kinematic 
 3. Handling If the target is unreachable i.e. if the distance between the root and the target is less than the length of the kinematic chain.
 4. multiple end effector
 5. the human feet be able to move
